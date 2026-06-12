@@ -579,9 +579,12 @@
         </div>
 
         <p class="profile-headline">
-          AI engineer and solo founder focused on replacing manual fiscal/accounting work with <strong>production-grade agent systems</strong>.
-          Shipped a <strong>43-tool MCP server</strong>, multi-tier Claude orchestration, specialized agents and a full fiscal compliance SaaS;
-          all from zero in TypeScript with strict Zod schema validations. Communicates and documents in <strong>English-first environments</strong> as a default.
+          AI engineer building <strong>production-grade agent systems</strong> in TypeScript.
+          Designed and shipped a <strong>43-tool MCP server</strong>, a multi-tier Claude orchestration layer,
+          and the full fiscal-compliance platform on top of it — from zero, with strict Zod validation,
+          <strong>6,000+ tests</strong>, and end-to-end observability. I build infrastructure that holds up
+          in production, document in <strong>English-first environments</strong> by default, and want to bring
+          that into an engineering team.
         </p>
 
         <!-- EXPERIENCE -->
@@ -590,60 +593,60 @@
         <div class="exp-item">
           <div class="exp-header">
             <div>
-              <span class="exp-role">Founder &amp; Lead AI Engineer</span>
+              <span class="exp-role">AI Engineer</span>
               <span style="color: #555; font-size: 7.5pt"> · </span>
               <span class="exp-company">DISAI</span>
+              <span style="color: #777; font-size: 7.5pt; font-style: italic"> (independent)</span>
             </div>
             <span class="exp-date">Jun 2025 – Present</span>
           </div>
           <ul class="exp-bullets">
             <li>
-              <strong>43-Tool MCP Server:</strong> Architected and deployed a MCP server
-              (TypeScript/Node.js, Railway) covering all three primitives —
-              <strong>Tools</strong> for CFDI 4.0 fiscal ops, <strong>Resources</strong>
-              for live SAT catalog injection (batch-loaded per agent domain),
-              <strong>SSE + HTTP Streamable</strong> dual transport, multi-tenant CSD
-              management. EFOS/EDOS blacklist sync, PAC stamping.
-              <strong>100k+ invoices/min at &lt;2ms latency.</strong>
+              <strong>43-tool MCP server.</strong> Architected and deployed a production MCP server
+              (TypeScript/Node.js, Railway) across all three primitives — <strong>Tools</strong> for
+              CFDI 4.0 fiscal ops, <strong>Resources</strong> for live SAT-catalog injection (batch-loaded
+              per agent domain), <strong>SSE + HTTP Streamable</strong> dual transport, multi-tenant CSD
+              management, EFOS/EDOS blacklist sync, PAC stamping. <strong>Benchmarked at ~1.2ms median
+              tool dispatch with a 0% error rate under sustained synthetic load.</strong>
               <span class="stack-pill">MCP</span><span class="stack-pill">TypeScript</span><span class="stack-pill">Railway</span>
             </li>
             <li>
-              <strong>3-Tier Agentic Orchestration:</strong> Haiku <strong>router</strong>
-              (classifies 10 fiscal domains + query intent in ~100ms) &rarr; 10
-              <strong>domain DomainAgents</strong> (Sonnet, Anthropic native tool_use,
-              real agentic loops up to 6 iterations, parallel tool calls, self-correction
-              on failure) &rarr; <strong>Expert Registry</strong> with scoped tool
-              allowlists (5–8/domain) + live MCP Resource injection. Zero hallucinations.
+              <strong>3-tier agentic orchestration.</strong> Haiku <strong>router</strong>
+              (classifies 10 fiscal domains + query intent in ~100ms) &rarr; 10 Sonnet
+              <strong>DomainAgents</strong> (Anthropic native tool_use, agentic loops up to 6 iterations,
+              parallel tool calls, self-correction on failure) &rarr; <strong>Expert Registry</strong>
+              with scoped tool allowlists (5–8 per domain) and live MCP Resource injection.
               <span class="stack-pill">Claude API</span><span class="stack-pill">Tool Use</span><span class="stack-pill">Multi-Agent</span>
             </li>
             <li>
-              <strong>Vector DB &amp; MCP Resource Injection:</strong> pgvector
-              (PostgreSQL 16) for semantic SAT catalog search. MCP Resources
-              pre-loaded into each agent's context window before the first LLM call,
-              eliminating hallucinated catalog codes without RAG query overhead.
-              <span class="stack-pill">pgvector</span><span class="stack-pill">PostgreSQL</span>
+              <strong>Hallucination control by design.</strong> Pre-load SAT catalog Resources into each
+              agent's context before the first LLM call — eliminates a whole class of hallucinated catalog
+              codes without RAG query overhead.
+              <span class="stack-pill">MCP Resources</span><span class="stack-pill">pgvector</span>
             </li>
             <li>
-              <strong>Self-Hosted AI Infra:</strong> Deployed self-hosted n8n with direct
-              MCP client integration for SAT tool execution. Replaced Zapier/Make —
-              <strong>80% cost reduction</strong>, 400+ integrations, full data ownership.
-              Deployed MVPs to Railway before scaling.
-              <span class="stack-pill">n8n</span><span class="stack-pill">Docker</span>
-            </li>
-            <li>
-              <strong>Streaming React Frontend:</strong> Next.js 16 + shadcn/ui chat
-              interface with SSE event pipeline — Activity Log, Thinking Steps, Skeleton
-              bubbles for 30–60s async LLM waits. Compliance dashboard, EFOS monitor,
-              CSD status, driver.js onboarding, per-call savings tracking.
-              <span class="stack-pill">Next.js</span><span class="stack-pill">React 19</span><span class="stack-pill">Tailwind</span>
-            </li>
-            <li>
-              <strong>Langfuse Observability:</strong> Instrumented the full orchestrator with Langfuse tracing — every LLM call, tool invocation, model selection, token cost, and streaming event tracked end-to-end. Supports cost attribution per session and failure triage without log digging.
+              <strong>Observability &amp; cost control.</strong> Instrumented the orchestrator with Langfuse
+              end-to-end — every LLM call, tool invocation, model selection, token cost, and streaming event
+              traced, with per-session cost attribution and failure triage without log digging.
               <span class="stack-pill">Langfuse</span><span class="stack-pill">Tracing</span>
             </li>
             <li>
-              <strong>Human-in-the-Loop Reviewer Surfaces:</strong> Built compliance dashboard and EFOS monitor as Next.js reviewer interfaces with one-click approval flows, MCP-apps for interactive responses in chat and per-call savings tracking — wired directly into the agent pipeline as the human approval layer.
+              <strong>Human-in-the-loop surfaces.</strong> Built a compliance dashboard and EFOS monitor as
+              Next.js reviewer interfaces with one-click approval flows and MCP-UI in-chat apps, wired into
+              the agent pipeline as the human approval layer for irreversible operations.
               <span class="stack-pill">Next.js</span><span class="stack-pill">HITL</span><span class="stack-pill">MCP-UI</span>
+            </li>
+            <li>
+              <strong>Streaming React frontend.</strong> Next.js 16 + shadcn/ui chat with an SSE event
+              pipeline (activity log, thinking steps, skeleton states for 30–60s async waits), compliance
+              dashboard, CSD status, onboarding, per-call savings tracking.
+              <span class="stack-pill">Next.js</span><span class="stack-pill">React 19</span><span class="stack-pill">Tailwind</span>
+            </li>
+            <li>
+              <strong>Engineering discipline.</strong> 6,000+ tests, 91%+ coverage, CI/CD, conventional
+              commits, schema validation at every boundary — solo-built to a standard that's safe to hand
+              to a team.
+              <span class="stack-pill">CI/CD</span><span class="stack-pill">Zod</span><span class="stack-pill">Vitest</span>
             </li>
           </ul>
         </div>
@@ -659,18 +662,16 @@
           </div>
           <ul class="exp-bullets">
             <li>
-              <strong>Financial Analytics Terminal:</strong> Full-stack
-              "Bloomberg-style" dashboard aggregating real-time data from
-              Federal Reserve, on-chain APIs and crypto exchanges via WebSockets.
-              Rate-limiting, memory caching, and graceful degradation for a
-              self-healing low-latency system.
-              <span class="stack-pill">React</span><span class="stack-pill">WebSockets</span><span class="stack-pill">APIs</span>
+              <strong>Real-time analytics terminal.</strong> Built and shipped a "Bloomberg-style"
+              terminal for the community's research operations — aggregated Federal Reserve, on-chain,
+              and exchange data over dual WebSockets, with rate-limiting, caching, and graceful
+              degradation for low-latency uptime.
+              <span class="stack-pill">React</span><span class="stack-pill">Node.js</span><span class="stack-pill">Redis</span><span class="stack-pill">Docker</span>
             </li>
             <li>
-              <strong>Smart Contract Audits &amp; Documentation:</strong> Led
-              internal audits and built a token distribution visualization
-              platform. Mitigated investor risk and drove a
-              <strong>30% increase in token valuation</strong> to all-time highs.
+              <strong>Distributed team &amp; audits.</strong> Collaborated with a distributed contributor
+              team; led internal smart-contract audits and built a token-distribution visualization
+              platform that reduced investor risk.
             </li>
           </ul>
         </div>
@@ -686,11 +687,10 @@
           </div>
           <ul class="exp-bullets">
             <li>
-              <strong>Data-Driven Intelligence:</strong> Delivered 25+
-              peer-reviewed analytics reports (1,200+ pages) — SWOT analysis,
-              investor risk models, and macroeconomic forecasting for Web3
-              ecosystems. Translated dense technical data into content generating
-              <strong>+70k views.</strong>
+              <strong>Data-driven intelligence.</strong> Delivered 25+ peer-reviewed analytics reports
+              (1,200+ pages) — SWOT analysis, investor-risk models, and macro forecasting for Web3
+              ecosystems, translating dense technical data into clear writing that reached
+              <strong>70k+ views.</strong>
             </li>
           </ul>
         </div>
@@ -723,7 +723,7 @@
               set: tools, resources, prompts, elicitations, tasks + 8 MCP-UI
               mini-apps for in-chat fiscal rendering. SSE + HTTP Streamable.
               CFDI 4.0 lifecycle, EFOS/EDOS sync, PAC stamping, multi-tenant
-              CSD. 3,960 tests · 91%+ coverage.
+              CSD. 5,500+ tests · 91%+ coverage.
             </p>
             <div class="proj-stack">
               <span class="proj-tag">TypeScript</span>
@@ -739,7 +739,7 @@
               Haiku router + 10 domain DomainAgents (Sonnet, native tool_use,
               6-iter agentic loops) + Expert Registry with scoped allowlists
               and live MCP Resource injection. Langfuse full-stack tracing.
-              HITL compliance dashboard. Streaming SSE UI for Mexican SMEs.
+              HITL compliance dashboard. Streaming SSE UI.
             </p>
             <div class="proj-stack">
               <span class="proj-tag">Next.js 16</span>
@@ -753,9 +753,9 @@
             <h4>n8n AI Automation Stack</h4>
             <p>
               Self-hosted n8n with direct MCP client integration for SAT
-              tool execution. Specialized sub-agents per CFDI type, 400+
-              integrations, context bundle architecture. Replaced Zapier/Make —
-              80% cost reduction.
+              tool execution. Specialized sub-agents per CFDI type, context-bundle
+              architecture, 400+ available integrations. Replaced Zapier/Make for
+              an ~80% recurring-cost reduction.
             </p>
             <div class="proj-stack">
               <span class="proj-tag">n8n</span>

@@ -133,7 +133,7 @@ export default function Contact() {
             className="inline-flex items-center justify-center gap-2 px-8 py-4 text-lg font-bold rounded-xl bg-gradient-to-r from-green-500 to-cyan-500 text-black hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] transition-shadow"
             data-umami-event="contacto-hire-me"
           >
-            Hire me →
+            Email me →
           </MagneticLink>
           <MagneticLink
             href="https://calendly.com/tripl3tr3s/30min"

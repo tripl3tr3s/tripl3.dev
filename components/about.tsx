@@ -75,7 +75,7 @@ export default function About() {
     {
       icon: <Brain className="w-6 h-6 text-teal-600 dark:text-cyan-400" />,
       title: "AI Systems & LLM Orchestration",
-      description: "Anthropic Claude API (tool_use, streaming, multi-turn), MCP Protocol (full primitive set: tools, resources, prompts, elicitations, tasks, MCP-UI), multi-agent orchestration (3-tier domain architecture, Expert Registry pattern, scoped tool allowlists), agentic loop design with self-correction and parallel tool calls. Langfuse end-to-end tracing (every LLM call, tool invocation, token cost, streaming event). HITL reviewer surface patterns for human approval layers wired directly into the agent pipeline.",
+      description: "Anthropic Claude API (tool_use, streaming, multi-turn), MCP Protocol (full primitive set), multi-agent orchestration, Expert Registry pattern, scoped tool allowlists, Langfuse tracing, HITL approval patterns.",
     },
     {
       icon: <Database className="w-6 h-6 text-green-700 dark:text-green-400" />,
@@ -137,21 +137,19 @@ export default function About() {
             <div className="relative z-10">
               <h3 className="text-2xl font-bold mb-4">Background</h3>
               <p className="text-muted-foreground mb-4">
-                My path to AI engineering wasn&apos;t conventional. That&apos;s the point.
+                My path to AI engineering wasn&apos;t a straight line, and that&apos;s where the edge comes from.
               </p>
               <p className="text-muted-foreground mb-4">
-                I started in graphic design and tattoo artistry, where I learned that precision and
-                intentionality aren&apos;t optional. Then I spent years writing deep technical analysis:
-                20+ research reports on decentralized protocol architecture, on-chain data patterns,
-                and economic system design. That work trained me to read complex systems, find failure
-                modes, and communicate findings clearly.
-              </p>
-              <p className="text-muted-foreground mb-4">
-                When I discovered LLMs, MCP, and agentic systems, I stopped analyzing other people&apos;s
-                infrastructure and started building my own.
+                I started in graphic design and tattoo work, where precision and intentionality aren&apos;t
+                optional. Then I spent two years writing deep technical research on complex systems —
+                protocol architecture, incentive design, market structure — which trained me to read an
+                unfamiliar system fast, find where it breaks, and explain it clearly. When I found LLMs
+                and the Model Context Protocol, I stopped analyzing other people&apos;s infrastructure and
+                started building my own.
               </p>
               <p className="text-muted-foreground text-sm">
-                I&apos;m Mexican, I operate globally, I speak both En and Es.
+                Mexican, operating globally, fully bilingual — Spanish native, English professional.
+                EST-aligned, async by default.
               </p>
             </div>
           </motion.div>
@@ -171,23 +169,37 @@ export default function About() {
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out pointer-events-none" />
             <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative z-10">
-              <h3 className="text-2xl font-bold mb-4">Current Focus</h3>
+              <h3 className="text-2xl font-bold mb-4">What I do</h3>
               <p className="text-muted-foreground mb-4">
-                Today I specialize in production AI systems engineering. Specifically:
+                I build the unglamorous parts that make AI agents trustworthy in production:
               </p>
-              <ul className="text-muted-foreground space-y-2 mb-4">
-                <li>Custom MCP server design (tools, resources, prompts, elicitations, tasks, MCP-UI mini-apps) with SSE and HTTP Streamable transport</li>
-                <li>3-tier agentic orchestration: lightweight router → domain-specialized agents with native tool_use → Expert Registry with scoped allowlists and live MCP resource injection</li>
-                <li>Langfuse observability: every LLM call, tool invocation, model selection, token cost, and streaming event tracked end-to-end with cost attribution per session</li>
-                <li>HITL reviewer surfaces: compliance dashboard and EFOS monitor as Next.js interfaces with one-click approval flows wired directly into the agent pipeline</li>
-                <li>LLM system testing: 3,960+ passing tests, 91%+ coverage on a solo-built TypeScript codebase</li>
-                <li>Full deployment stack: Docker, Railway, CI/CD, rate limiting, security headers, RLS, observability</li>
+              <ul className="text-muted-foreground space-y-2">
+                <li>
+                  <strong className="font-semibold text-foreground">MCP server design</strong> — full primitive
+                  set (tools, resources, prompts, elicitations, MCP-UI), SSE + HTTP Streamable transport,
+                  multi-tenant architecture.
+                </li>
+                <li>
+                  <strong className="font-semibold text-foreground">Multi-tier agentic orchestration</strong> — a
+                  lightweight router classifies intent, domain-scoped agents run native tool_use loops with
+                  self-correction, and an Expert Registry enforces per-domain tool allowlists with live resource
+                  injection.
+                </li>
+                <li>
+                  <strong className="font-semibold text-foreground">Observability &amp; cost control</strong> —
+                  end-to-end Langfuse tracing on every LLM call, tool invocation, model choice, and token cost,
+                  with per-session attribution and failure triage without log digging.
+                </li>
+                <li>
+                  <strong className="font-semibold text-foreground">Human-in-the-loop surfaces</strong> —
+                  one-click approval flows wired into the agent pipeline for irreversible operations.
+                </li>
+                <li>
+                  <strong className="font-semibold text-foreground">Production discipline</strong> — 6,000+ tests,
+                  91%+ coverage, CI/CD, schema validation at every boundary, conventional commits, drift guards.
+                  The hygiene that makes solo-built work safe to hand to a team.
+                </li>
               </ul>
-              <p className="text-muted-foreground">
-                I currently operate as an independent AI engineer, building DISAI_Conta (a production
-                fiscal AI platform) and taking on select consulting engagements for teams that need
-                real AI infrastructure, not demos.
-              </p>
             </div>
           </motion.div>
         </div>

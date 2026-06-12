@@ -87,7 +87,7 @@ export default function Hero() {
               className="mb-6 inline-block px-3 py-1 rounded-full bg-primary/10 text-primary dark:text-green-400 text-sm font-medium border border-primary/20 dark:border-green-500/20 animate-badge-reveal"
               style={{ animationDelay: "0.25s" }}
             >
-              MCP Protocol Architect · Multi-Agent Orchestration · Langfuse Observability · HITL Systems
+              MCP server design · Multi-agent orchestration · Langfuse observability · HITL systems
             </div>
 
             {/* Static headline */}
@@ -107,12 +107,10 @@ export default function Hero() {
               transition={{ delay: 0.6, duration: 0.8 }}
               className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto md:mx-0"
             >
-              AI engineer and solo founder replacing manual fiscal and accounting work with
-              production-grade agent systems. Shipped a 43-tool MCP server, multi-tier Claude
-              orchestration, Langfuse end-to-end observability, and HITL reviewer surfaces — all
-              from zero in TypeScript. Currently building DISAI_Conta, an AI-native fiscal compliance
-              platform for Mexican SMEs. Open to senior AI engineering roles and high-leverage
-              consulting engagements.
+              AI engineer building production-grade LLM and agent systems in TypeScript. I designed
+              and shipped a 43-tool MCP server and a multi-tier Claude orchestration layer from zero —
+              backed by 6,000+ tests and end-to-end observability. I build for production, not demos.
+              Open to AI engineering roles where I can bring that to a team.
             </motion.p>
 
             {/* CTAs */}
@@ -127,16 +125,14 @@ export default function Hero() {
                 className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-green-500 to-cyan-500 text-black font-bold text-center hover:shadow-[0_0_28px_rgba(6,182,212,0.5)] transition-shadow"
                 data-umami-event="cta-ver-proyectos"
               >
-                View My Work
+                View my work
               </MagneticLink>
               <MagneticLink
-                href="https://calendly.com/tripl3tr3s/30min"
-                target="_blank"
-                rel="noopener noreferrer"
+                href="#contact"
                 className="w-full sm:w-auto px-8 py-4 rounded-xl border-2 border-green-500/30 text-foreground font-semibold text-center hover:bg-green-500/10 hover:border-green-500/50 transition-colors"
                 data-umami-event="cta-lets-talk"
               >
-                Let&apos;s Talk
+                Get in touch
               </MagneticLink>
             </motion.div>
           </motion.div>

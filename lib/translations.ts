@@ -12,7 +12,7 @@ export const translations = {
   },
   contact: {
     title: "Let's work together",
-    subtitle: "Whether you're building an AI-native product and need a senior engineer, or you're a business that needs real AI infrastructure, not demos, not wrappers. I'm open to the right conversations.",
+    subtitle: "Open to AI engineering roles, and the occasional high-leverage build. Email is the fastest way to reach me.",
     form: {
       name: "Your Name",
       namePlaceholder: "Your Name",
