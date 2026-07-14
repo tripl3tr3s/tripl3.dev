@@ -1,8 +1,8 @@
 "use client"
 
 import React from "react"
-import { motion, AnimatePresence, useAnimation, useMotionValue, useTransform, useAnimationFrame } from "framer-motion"
-import { useState, useMemo, useRef, useEffect, useCallback } from "react"
+import { motion } from "framer-motion"
+import { useState } from "react"
 import { ExternalLink, Download, X, Brain, Code2, Database, Workflow } from "lucide-react"
 import { useTranslation } from "@/lib/use-translation"
 
@@ -17,67 +17,11 @@ interface Certificate {
   file: string
   verifyUrl?: string
   description?: string
+  featured?: boolean
 }
 
-// Organized certificate data
+// Selected highlights. Full credential history lives on LinkedIn.
 const certificates: Certificate[] = [
-  // n8n Featured - Enterprise Self-Hosted
-  {
-    id: "n8n-selfhosted",
-    title: "n8n Self-Hosted for Enterprises",
-    date: "November 2025",
-    platform: "n8n",
-    category: "Automation",
-    file: "diploma-n8n-selfhosted.pdf",
-    description: "Enterprise-level n8n deployment and self-hosted infrastructure management"
-  },
-  {
-    id: "n8n-level-1",
-    title: "n8n Course Level 1 Certified",
-    date: "2025",
-    platform: "n8n",
-    category: "Automation",
-    file: "Captura de pantalla 2025-09-30 211337.webp",
-    description: "Workflow automation and n8n fundamentals"
-  },
-  // New AI Certifications
-  {
-    id: "scalable-agents",
-    title: "Building Scalable Agentic Systems",
-    date: "2025",
-    platform: "DataCamp",
-    category: "AI",
-    file: "building_scalable_agentic_systems.pdf",
-    description: "Architecture patterns for scalable multi-agent systems"
-  },
-  {
-    id: "ai-ethics",
-    title: "AI Ethics: Global Perspectives",
-    date: "2025",
-    platform: "DataCamp",
-    category: "AI",
-    file: "AI_Ethics.pdf",
-    description: "Ethical frameworks for AI deployment"
-  },
-  {
-    id: "ai-fundamentals",
-    title: "AI Fundamentals",
-    date: "2025",
-    platform: "DataCamp",
-    category: "AI",
-    file: "AIF0027739594254.pdf",
-    description: "Core concepts of Artificial Intelligence"
-  },
-  {
-    id: "pandas-manipulation",
-    title: "Data Manipulation with Pandas",
-    date: "2025",
-    platform: "DataCamp",
-    category: "Data",
-    file: "certificate (data_manip_with_pandas).pdf",
-    description: "Advanced data processing with Python/Pandas"
-  },
-  // Anthropic - AI & Tools (2025)
   {
     id: "mcp-advanced",
     title: "Model Context Protocol: Advanced Topics",
@@ -85,7 +29,8 @@ const certificates: Certificate[] = [
     platform: "Anthropic",
     category: "AI",
     file: "certificate-outzbe498ykm-AdvancedMCP.pdf",
-    verifyUrl: "https://verify.skilljar.com/c/outzbe498ykm"
+    verifyUrl: "https://verify.skilljar.com/c/outzbe498ykm",
+    featured: true,
   },
   {
     id: "claude-code",
@@ -94,145 +39,26 @@ const certificates: Certificate[] = [
     platform: "Anthropic",
     category: "AI",
     file: "certificate-9reqrkwostz5-1758848937.pdf",
-    verifyUrl: "https://verify.skilljar.com/c/9reqrkwostz5"
+    verifyUrl: "https://verify.skilljar.com/c/9reqrkwostz5",
   },
   {
-    id: "mcp-intro",
-    title: "Introduction to Model Context Protocol",
-    date: "September 25, 2025",
-    platform: "Anthropic",
-    category: "AI",
-    file: "certificate-tfsj7gki3476-1758836011.pdf",
-    verifyUrl: "https://verify.skilljar.com/c/tfsj7gki3476"
-  },
-  {
-    id: "ai-fluency",
-    title: "AI Fluency: Framework & Foundations",
+    id: "scalable-agents",
+    title: "Building Scalable Agentic Systems",
     date: "2025",
-    platform: "Anthropic",
-    category: "AI",
-    file: "certificate-6nrqh5j4rte6-1758841956.pdf"
-  },
-  // DataCamp
-  {
-    id: "data-literacy",
-    title: "Data Literacy Fundamentals",
-    date: "May 17, 2025",
     platform: "DataCamp",
-    category: "Data",
-    file: "DL0033995155503 (1).pdf"
-  },
-  // Platzi - Foundations
-  {
-    id: "software-eng",
-    title: "Software Engineering Fundamentals",
-    date: "February 26, 2024",
-    hours: "16h",
-    platform: "Platzi",
-    category: "Development",
-    file: "diploma-ingenieria2017.pdf"
+    category: "AI",
+    file: "building_scalable_agentic_systems.pdf",
+    description: "Architecture patterns for scalable multi-agent systems",
   },
   {
-    id: "prog-history",
-    title: "Programming History: Languages & Paradigms",
-    date: "February 26, 2024",
-    hours: "14h",
-    platform: "Platzi",
-    category: "Development",
-    file: "diploma-historia-programacion.pdf"
-  },
-  {
-    id: "web-intro",
-    title: "Web Introduction: Internet History & Functionality",
-    date: "February 25, 2024",
-    hours: "12h",
-    platform: "Platzi",
-    category: "Development",
-    file: "diploma-introweb.pdf"
-  },
-  // Platzi - Logical Thinking Series
-  {
-    id: "logic-algorithms",
-    title: "Logical Thinking: Algorithms & Flowcharts",
-    date: "February 28, 2024",
-    hours: "12h",
-    platform: "Platzi",
-    category: "Logic",
-    file: "diploma-pensamiento-logico-2022.pdf"
-  },
-  {
-    id: "logic-structures",
-    title: "Logical Thinking: Data Structures & Functions",
-    date: "March 3, 2024",
-    hours: "12h",
-    platform: "Platzi",
-    category: "Logic",
-    file: "diploma-pensamiento-logico-estructuras-2022.pdf"
-  },
-  {
-    id: "logic-languages",
-    title: "Logical Thinking: Programming Languages",
-    date: "March 4, 2024",
-    hours: "12h",
-    platform: "Platzi",
-    category: "Logic",
-    file: "diploma-pensamiento-logico-lenguajes-2022.pdf"
-  },
-  // Platzi - Tools & Blockchain
-  {
-    id: "ethereum-fundamentals",
-    title: "Ethereum Fundamentals",
-    date: "October 29, 2024",
-    hours: "16h",
-    platform: "Platzi",
-    category: "Blockchain",
-    file: "diploma-ethereum-ecosistema.pdf"
-  },
-  {
-    id: "blockchain-prework",
-    title: "Blockchain Development Prework",
-    date: "March 9, 2024",
-    hours: "16h",
-    platform: "Platzi",
-    category: "Blockchain",
-    file: "diploma-prework-ethereum.pdf"
-  },
-  {
-    id: "git-github",
-    title: "Git & GitHub",
-    date: "October 27, 2024",
-    hours: "24h",
-    platform: "Platzi",
-    category: "Tools",
-    file: "diploma-gitgithub.pdf"
-  },
-  {
-    id: "linux-admin",
-    title: "Linux Server Administration Introduction",
-    date: "November 5, 2024",
-    hours: "14h",
-    platform: "Platzi",
-    category: "Tools",
-    file: "diploma-linux.pdf"
-  },
-  {
-    id: "n8n-lowcode",
-    title: "Low-Code Automation with n8n",
-    date: "October 30, 2024",
-    hours: "7h",
-    platform: "Platzi",
+    id: "n8n-selfhosted",
+    title: "n8n Self-Hosted for Enterprises",
+    date: "November 2025",
+    platform: "n8n",
     category: "Automation",
-    file: "diploma-n8n-lowcode.pdf"
+    file: "diploma-n8n-selfhosted.pdf",
+    description: "Enterprise-level n8n deployment and self-hosted infrastructure management",
   },
-  {
-    id: "terminal",
-    title: "Terminal & Command Line Introduction",
-    date: "March 7, 2024",
-    hours: "11h",
-    platform: "Platzi",
-    category: "Tools",
-    file: "diploma-terminal-21.pdf"
-  }
 ]
 
 // Platform colors
@@ -314,7 +140,7 @@ function CertificateCard({ cert, index, onClick, t }: CertificateCardProps) {
 
   return (
     <motion.div
-      className={`bg-card/30 p-6 rounded-xl border ${categoryColor.border} ${categoryColor.hover} ${categoryColor.glow} transition-all group cursor-grab active:cursor-grabbing relative overflow-hidden ${categoryColor.bg}`}
+      className={`bg-card/30 p-6 rounded-xl border ${categoryColor.border} ${categoryColor.hover} ${categoryColor.glow} transition-all group cursor-pointer relative overflow-hidden ${categoryColor.bg}`}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
@@ -328,6 +154,7 @@ function CertificateCard({ cert, index, onClick, t }: CertificateCardProps) {
           damping: 20
         }
       }}
+      onClick={onClick}
     >
       {/* Hover gradient */}
       <div
@@ -367,19 +194,14 @@ function CertificateCard({ cert, index, onClick, t }: CertificateCardProps) {
           {cert.date} {cert.hours && `• ${cert.hours}`}
         </p>
 
-        {/* Actions - Only this part is clickable */}
-        <div className="flex items-center gap-2 text-sm z-50 relative pointer-events-auto">
-          <motion.button
-            className="inline-flex items-center text-green-700 dark:text-green-400 hover:text-green-600 dark:hover:text-green-300 font-medium"
-            whileHover={{ x: 4 }}
-            onClick={(e) => {
-              e.stopPropagation()
-              onClick()
-            }}
+        {/* Action */}
+        <div className="flex items-center gap-2 text-sm">
+          <motion.span
+            className="inline-flex items-center text-green-700 dark:text-green-400 group-hover:text-green-600 dark:group-hover:text-green-300 font-medium"
             data-umami-event={`cert-ver-${cert.id}`}
           >
             {t('certifications.viewCert')} <ExternalLink className="ml-1 w-3 h-3" />
-          </motion.button>
+          </motion.span>
         </div>
       </div>
     </motion.div>
@@ -409,32 +231,16 @@ const featuredStyle: Record<string, {
   },
 }
 
-const slideVariants = {
-  enter: { y: "60%", scaleY: 1.08, opacity: 0 },
-  center: { y: 0, scaleY: 1, opacity: 1 },
-  exit: { y: "-60%", scaleY: 0.92, opacity: 0 },
-}
-
-function FeaturedCarousel({ certs, onSelect, t }: {
-  certs: Certificate[]
+function FeaturedCard({ cert, onSelect, t }: {
+  cert: Certificate
   onSelect: (cert: Certificate) => void
   t: (key: string) => string
 }) {
-  const [index, setIndex] = useState(0)
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex(prev => (prev + 1) % certs.length)
-    }, 4000)
-    return () => clearInterval(timer)
-  }, [certs.length])
-
-  const cert = certs[index]
   const style = featuredStyle[cert.platform] ?? featuredStyle.n8n
 
   return (
     <motion.div
-      className="relative overflow-hidden rounded-2xl border-2 cursor-pointer group"
+      className={`relative overflow-hidden rounded-2xl border-2 ${style.border} cursor-pointer group`}
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
@@ -443,73 +249,52 @@ function FeaturedCarousel({ certs, onSelect, t }: {
       onClick={() => onSelect(cert)}
       style={{ minHeight: "180px" }}
     >
-      <AnimatePresence mode="wait">
+      <div className={`bg-gradient-to-br ${style.gradient} p-8`}>
+        {/* Ribbon */}
+        <div className={`absolute top-6 -right-12 bg-gradient-to-r ${style.button} text-white px-12 py-2 rotate-45 text-sm font-bold shadow-lg`}>
+          {t('certifications.featured').split(' ')[0]}
+        </div>
+
+        {/* Pulse glow */}
         <motion.div
-          key={cert.id}
-          className={`absolute inset-0 bg-gradient-to-br ${style.gradient} p-8`}
-          variants={slideVariants}
-          initial="enter"
-          animate="center"
-          exit="exit"
-          transition={{ duration: 0.5, ease: [0.32, 0.72, 0, 1] }}
-        >
-          {/* Ribbon */}
-          <div className={`absolute top-6 -right-12 bg-gradient-to-r ${style.button} text-white px-12 py-2 rotate-45 text-sm font-bold shadow-lg`}>
-            {t('certifications.featured').split(' ')[0]}
-          </div>
+          className={`absolute inset-0 bg-gradient-to-r ${style.glow} pointer-events-none`}
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        />
 
-          {/* Pulse glow */}
+        <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
           <motion.div
-            className={`absolute inset-0 bg-gradient-to-r ${style.glow} pointer-events-none`}
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          />
+            className={`p-6 ${style.iconBg} rounded-2xl shrink-0`}
+            whileHover={{ rotate: [0, -5, 5, -5, 0] }}
+            transition={{ duration: 0.5 }}
+          >
+            {style.icon}
+          </motion.div>
 
-          <div className="relative z-10 flex flex-col md:flex-row items-center gap-6">
-            <motion.div
-              className={`p-6 ${style.iconBg} rounded-2xl shrink-0`}
-              whileHover={{ rotate: [0, -5, 5, -5, 0] }}
-              transition={{ duration: 0.5 }}
+          <div className="flex-1 text-center md:text-left">
+            <div className={`${style.text} font-bold text-sm mb-2`}>🏆 {t('certifications.featured')}</div>
+            <h3 className="text-2xl md:text-3xl font-bold mb-2">{cert.title}</h3>
+            <p className="text-muted-foreground mb-4">
+              {cert.platform} • {cert.date}
+            </p>
+            <motion.button
+              className={`px-6 py-2 bg-gradient-to-r ${style.button} text-white rounded-lg font-semibold hover:shadow-lg transition-shadow`}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={e => { e.stopPropagation(); onSelect(cert) }}
+              data-umami-event={`cert-destacada-${cert.id}`}
             >
-              {style.icon}
-            </motion.div>
-
-            <div className="flex-1 text-center md:text-left">
-              <div className={`${style.text} font-bold text-sm mb-2`}>🏆 {t('certifications.featured')}</div>
-              <h3 className="text-2xl md:text-3xl font-bold mb-2">{cert.title}</h3>
-              <p className="text-muted-foreground mb-4">
-                {cert.platform} • {cert.date}
-              </p>
-              <motion.button
-                className={`px-6 py-2 bg-gradient-to-r ${style.button} text-white rounded-lg font-semibold hover:shadow-lg transition-shadow`}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={e => { e.stopPropagation(); onSelect(cert) }}
-                data-umami-event={`cert-destacada-${cert.id}`}
-              >
-                {t('certifications.viewBadge')}
-              </motion.button>
-            </div>
+              {t('certifications.viewBadge')}
+            </motion.button>
           </div>
-
-          {/* Dot indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-            {certs.map((_, i) => (
-              <button
-                key={i}
-                onClick={e => { e.stopPropagation(); setIndex(i) }}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${i === index ? `bg-white scale-125` : "bg-white/30"}`}
-              />
-            ))}
-          </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+      </div>
     </motion.div>
   )
 }
 
 function CertificateModal({ cert, onClose, t }: { cert: Certificate; onClose: () => void; t: (key: string) => string }) {
-  const isImage = cert.file.endsWith('.webp') || cert.file.endsWith('.webp')
+  const isImage = cert.file.endsWith('.webp') || cert.file.endsWith('.png') || cert.file.endsWith('.jpg')
 
   return (
     <motion.div
@@ -583,146 +368,12 @@ function CertificateModal({ cert, onClose, t }: { cert: Certificate; onClose: ()
   )
 }
 
-// Physics-based infinite carousel
-function CertificateCarousel({ certificates, onSelectCert, t }: {
-  certificates: Certificate[]
-  onSelectCert: (cert: Certificate) => void
-  t: (key: string) => string
-}) {
-  const containerRef = useRef<HTMLDivElement>(null)
-
-  // Physics parameters - "Game feel" customization
-  const baseVelocity = -0.5 // Auto-scroll speed (pixels per frame)
-  const friction = 0.95     // Deceleration factor (0-1) - Higher means slides longer
-  const dragFactor = 1.2    // Multiplier for throws
-
-  // Motion values
-  const x = useMotionValue(0)
-  const velocity = useRef(0)
-  const isDragging = useRef(false)
-  const lastX = useRef(0)
-  const lastTime = useRef(0)
-
-  // Triplicate cards for infinite loop
-  const displayCerts = useMemo(() => [...certificates, ...certificates, ...certificates], [certificates])
-  const cardWidth = 280 + 24 // Card + Gap
-  const totalWidth = certificates.length * cardWidth
-
-  // Manual wrap with motion value
-  const xWrapped = useTransform(x, (v) => {
-    // Wrap logic: when v < -totalWidth, it jumps back by adding totalWidth
-    const wrapped = ((v % totalWidth) - totalWidth) % totalWidth
-    return wrapped
-  })
-
-  // Physics Loop
-  useAnimationFrame((t, delta) => {
-    const timeNow = performance.now()
-    const dt = timeNow - lastTime.current
-    lastTime.current = timeNow
-
-    let moveBy = 0
-
-    if (!isDragging.current) {
-      // If not dragging, apply inertia + base velocity
-
-      // Decay velocity towards base velocity
-      if (Math.abs(velocity.current - baseVelocity) > 0.01) {
-        velocity.current = velocity.current * friction + baseVelocity * (1 - friction)
-      } else {
-        velocity.current = baseVelocity
-      }
-
-      moveBy = velocity.current * (delta / 16) // Approx 60fps normalization
-    }
-
-    // Apply movement
-    x.set(x.get() + moveBy)
-  })
-
-  // Drag Handlers
-  const handleDragStart = () => {
-    isDragging.current = true
-    lastX.current = x.get()
-  }
-
-  const handleDrag = (_: any, info: any) => {
-    // Direct velocity tracking could be jittery, Framer's info.velocity is better
-    // But we need to sync our manual 'x' with the drag 'x' if we used a draggable element.
-    // Instead of using `drag="x"` which fights with our manual x control, 
-    // we can use a simpler approach: Let Framer handle drag on a transparent overlay or 
-    // use `drag` but sync state on DragEnd.
-
-    // Actually, simpler approach for "infinite":
-    // We update velocity based on drag delta
-    const currentX = x.get() + info.delta.x
-    x.set(currentX)
-
-    // Track velocity manually for "throw" release
-    // Simple EWMA for smoothing
-    velocity.current = info.delta.x * dragFactor
-  }
-
-  const handleDragEnd = () => {
-    isDragging.current = false
-    // Velocity is already set in handleDrag, physics loop takes over
-  }
-
-  return (
-    <div className="relative overflow-hidden py-10" ref={containerRef}>
-      {/* Gradient overlays */}
-      <div className="absolute left-0 top-0 bottom-0 w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-      <div className="absolute right-0 top-0 bottom-0 w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-
-      {/* 
-        We use a motion.div for the DRAG interactions, but we don't let it move itself.
-        Instead, we capture drag events to drive our `x` motion value.
-      */}
-      <motion.div
-        className="flex gap-6 pl-4 cursor-grab active:cursor-grabbing"
-        style={{ x: xWrapped, width: 'max-content' }}
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }} // Constraints 0 forces 'elastic' drag if we didn't override onDrag
-        dragElastic={0} // No elasticity, we handle movement
-        dragMomentum={false} // We handle momentum
-        onDragStart={handleDragStart}
-        onDrag={handleDrag}
-        onDragEnd={handleDragEnd}
-      >
-        {displayCerts.map((cert, idx) => (
-          <motion.div
-            key={`${cert.id}-${idx}`}
-            className="flex-shrink-0"
-            style={{ width: '280px' }}
-            // Prevent drag from triggering click
-            onClick={(e) => {
-              if (isDragging.current) e.stopPropagation()
-            }}
-          >
-            <CertificateCard
-              cert={cert}
-              index={idx % certificates.length} // Use mod for index to avoid animation delay gaps or use flat index
-              onClick={() => onSelectCert(cert)}
-              t={t}
-            />
-          </motion.div>
-        ))}
-      </motion.div>
-
-      <div className="text-center mt-6 text-sm text-muted-foreground opacity-50 select-none">
-        <p>← Drag to explore →</p>
-      </div>
-    </div>
-  )
-}
-
 export default function Certifications() {
   const { t } = useTranslation()
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null)
 
-  const featuredIds = ["mcp-advanced", "n8n-selfhosted"]
-  const featuredCerts = featuredIds.map(id => certificates.find(c => c.id === id)!).filter(Boolean)
-  const otherCerts = certificates.filter(c => !featuredIds.includes(c.id))
+  const featuredCert = certificates.find(c => c.featured) ?? certificates[0]
+  const otherCerts = certificates.filter(c => c.id !== featuredCert.id)
 
   return (
     <>
@@ -743,27 +394,35 @@ export default function Certifications() {
             </p>
           </motion.div>
 
-          <div className="max-w-7xl mx-auto space-y-12">
-            {/* Featured carousel — MCP Advanced ↔ n8n Self-Hosted */}
-            <FeaturedCarousel certs={featuredCerts} onSelect={setSelectedCert} t={t} />
+          <div className="max-w-5xl mx-auto space-y-8">
+            {/* Featured certification */}
+            <FeaturedCard cert={featuredCert} onSelect={setSelectedCert} t={t} />
 
-            {/* All Other Certifications - Infinite Physics Carousel */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              whileInView={{ opacity: 1 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ delay: 0.2 }}
-            >
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold mb-2">{t('certifications.allCerts')}</h3>
-                <p className="text-muted-foreground">{t('certifications.browseCerts')}</p>
-              </div>
-              <CertificateCarousel
-                certificates={otherCerts}
-                onSelectCert={setSelectedCert}
-                t={t}
-              />
-            </motion.div>
+            {/* Other certifications */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {otherCerts.map((cert, idx) => (
+                <CertificateCard
+                  key={cert.id}
+                  cert={cert}
+                  index={idx}
+                  onClick={() => setSelectedCert(cert)}
+                  t={t}
+                />
+              ))}
+            </div>
+
+            {/* Full history link */}
+            <div className="text-center pt-2">
+              <a
+                href="https://www.linkedin.com/in/tripl3tr3s"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center text-green-700 dark:text-green-400 hover:text-green-600 dark:hover:text-green-300 font-medium transition-colors"
+                data-umami-event="cert-linkedin-history"
+              >
+                {t('certifications.fullHistory')} <span className="ml-1">→</span>
+              </a>
+            </div>
           </div>
         </div>
       </section>

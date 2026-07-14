@@ -1,14 +1,13 @@
 export const translations = {
   certifications: {
     title: "Certifications & Credentials",
-    subtitle: "19 certifications, selected highlights below.",
+    subtitle: "Selected highlights below.",
     featured: "FEATURED CERTIFICATION",
     viewBadge: "View Badge",
     viewCert: "View Certificate",
     download: "Download",
     verify: "Verify",
-    allCerts: "All Certifications",
-    browseCerts: "Browse through my complete certification portfolio",
+    fullHistory: "Full credential history on LinkedIn",
   },
   contact: {
     title: "Let's work together",
