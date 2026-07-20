@@ -1,5 +1,5 @@
 export const metadata = {
-  title: "Ricardo Jaimes — CV",
+  title: "Ricardo Jaimes - CV",
 }
 
 export default function CVPage() {
@@ -15,7 +15,7 @@ export default function CVPage() {
         border: "none",
         zIndex: 9999,
       }}
-      title="Ricardo Jaimes — CV"
+      title="Ricardo Jaimes - CV"
     />
   )
 }

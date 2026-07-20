@@ -61,7 +61,7 @@ export function AnalyticsTracker() {
     window.addEventListener("beforeunload", handleUnload)
     cleanups.current.push(() => window.removeEventListener("beforeunload", handleUnload))
 
-    // Session identification + page load — fires once Umami is ready
+    // Session identification + page load - fires once Umami is ready
     const umamiCheck = setInterval(() => {
       if (!window.umami) return
       clearInterval(umamiCheck)

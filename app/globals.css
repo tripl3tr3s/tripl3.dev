@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 :root {
-  /* Sage mint — clearly colored, not white */
+  /* Sage mint - clearly colored, not white */
   --background: 145 30% 88%;
   --foreground: 160 50% 10%;
 
-  /* Near-white cards with faint mint tint — pop against background */
+  /* Near-white cards with faint mint tint - pop against background */
   --card: 140 12% 96%;
   --card-foreground: 160 50% 10%;
 
@@ -93,7 +93,7 @@ body {
   background: #10b981;
 }
 
-/* Glass surface utilities — Liquid Glass concept adapted for web */
+/* Glass surface utilities - Liquid Glass concept adapted for web */
 .glass-card {
   background: rgba(255, 255, 255, 0.48);
   backdrop-filter: blur(16px) saturate(160%);
@@ -135,7 +135,7 @@ body {
   --ease-in-out-back: cubic-bezier(0.68, -0.55, 0.27, 1.55);
 }
 
-/* 3D tilt card — preserve perspective for children */
+/* 3D tilt card - preserve perspective for children */
 .tilt-card {
   transform-style: preserve-3d;
   will-change: transform;

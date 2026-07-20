@@ -141,14 +141,14 @@ export default function About() {
               </p>
               <p className="text-muted-foreground mb-4">
                 I started in graphic design and tattoo work, where precision and intentionality aren&apos;t
-                optional. Then I spent two years writing deep technical research on complex systems —
-                protocol architecture, incentive design, market structure — which trained me to read an
+                optional. Then I spent two years writing deep technical research on complex systems
+                (protocol architecture, incentive design, market structure) that trained me to read an
                 unfamiliar system fast, find where it breaks, and explain it clearly. When I found LLMs
                 and the Model Context Protocol, I stopped analyzing other people&apos;s infrastructure and
                 started building my own.
               </p>
               <p className="text-muted-foreground text-sm">
-                Mexican, operating globally, fully bilingual — Spanish native, English professional.
+                Mexican, operating globally, fully bilingual: Spanish native, English professional.
                 EST-aligned, async by default.
               </p>
             </div>
@@ -175,27 +175,27 @@ export default function About() {
               </p>
               <ul className="text-muted-foreground space-y-2">
                 <li>
-                  <strong className="font-semibold text-foreground">MCP server design</strong> — full primitive
+                  <strong className="font-semibold text-foreground">MCP server design</strong>: full primitive
                   set (tools, resources, prompts, elicitations, MCP-UI), SSE + HTTP Streamable transport,
                   multi-tenant architecture.
                 </li>
                 <li>
-                  <strong className="font-semibold text-foreground">Multi-tier agentic orchestration</strong> — a
+                  <strong className="font-semibold text-foreground">Multi-tier agentic orchestration</strong>: a
                   lightweight router classifies intent, domain-scoped agents run native tool_use loops with
                   self-correction, and an Expert Registry enforces per-domain tool allowlists with live resource
                   injection.
                 </li>
                 <li>
-                  <strong className="font-semibold text-foreground">Observability &amp; cost control</strong> —
+                  <strong className="font-semibold text-foreground">Observability &amp; cost control</strong>:
                   end-to-end Langfuse tracing on every LLM call, tool invocation, model choice, and token cost,
                   with per-session attribution and failure triage without log digging.
                 </li>
                 <li>
-                  <strong className="font-semibold text-foreground">Human-in-the-loop surfaces</strong> —
+                  <strong className="font-semibold text-foreground">Human-in-the-loop surfaces</strong>:
                   one-click approval flows wired into the agent pipeline for irreversible operations.
                 </li>
                 <li>
-                  <strong className="font-semibold text-foreground">Production discipline</strong> — 6,000+ tests,
+                  <strong className="font-semibold text-foreground">Production discipline</strong>: 6,000+ tests,
                   91%+ coverage, CI/CD, schema validation at every boundary, conventional commits, drift guards.
                   The hygiene that makes solo-built work safe to hand to a team.
                 </li>

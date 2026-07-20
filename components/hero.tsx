@@ -82,7 +82,7 @@ export default function Hero() {
             transition={{ duration: 0.8 }}
             className="text-center md:text-left order-2 md:order-1"
           >
-            {/* Subhead badge — clip-path reveal */}
+            {/* Subhead badge - clip-path reveal */}
             <div
               className="mb-6 inline-block px-3 py-1 rounded-full bg-primary/10 text-primary dark:text-green-400 text-sm font-medium border border-primary/20 dark:border-green-500/20 animate-badge-reveal"
               style={{ animationDelay: "0.25s" }}
@@ -108,7 +108,7 @@ export default function Hero() {
               className="text-muted-foreground text-lg mb-8 max-w-xl mx-auto md:mx-0"
             >
               AI engineer building production-grade LLM and agent systems in TypeScript. I designed
-              and shipped a 43-tool MCP server and a multi-tier Claude orchestration layer from zero —
+              and shipped a 43-tool MCP server and a multi-tier Claude orchestration layer from zero,
               backed by 6,000+ tests and end-to-end observability. I build for production, not demos.
               Open to AI engineering roles where I can bring that to a team.
             </motion.p>
@@ -179,7 +179,7 @@ export default function Hero() {
                 className="hidden sm:block absolute -right-10 top-10 p-4 bg-gray-950/90 rounded-lg border border-green-500/20 shadow-[0_0_15px_rgba(6,182,212,0.2)] max-w-[200px]"
               >
                 <div className="text-cyan-400 font-mono text-xs">
-                  {"// Claude API — Anthropic"}
+                  {"// Claude API - Anthropic"}
                   <br />
                   {"const client = new Anthropic();"}
                   <br />
