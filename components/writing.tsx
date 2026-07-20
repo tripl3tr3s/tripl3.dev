@@ -28,18 +28,25 @@ const posts: Post[] = [
     tags: ["AI Strategy", "MLOps", "Engineering"],
   },
   {
-    title: "Building AI-Native Mexican Fiscal Compliance — 7 Months Solo",
-    excerpt: "CFDI 4.0, EFOS/EDOS blacklist monitoring, CSD state management — rule-dense fiscal compliance is the ideal AI domain. What 'AI-native' actually means when engineered, not marketed.",
+    title: "Building AI-Native Mexican Fiscal Compliance: 7 Months Solo",
+    excerpt: "CFDI 4.0, EFOS/EDOS blacklist monitoring, CSD state management: rule-dense fiscal compliance is the ideal AI domain. What 'AI-native' actually means when engineered, not marketed.",
     link: "https://www.linkedin.com/posts/tripl3tr3s_mcp-aiengineering-buildinpublic-share-7457548155954475008-a6CF",
     date: "2026",
     tags: ["AI Engineering", "Build in Public", "DISAI"],
   },
   {
     title: "80% of Requests Never Hit the Expensive Model",
-    excerpt: "How 3-tier routing — Haiku classifier (~100ms, 60 tokens) → domain specialists → Sonnet for full orchestration — cuts cost without degrading quality. Routing as architecture, not afterthought.",
+    excerpt: "How 3-tier routing cuts cost without degrading quality: a Haiku classifier (~100ms, 60 tokens) → domain specialists → Sonnet for full orchestration. Routing as architecture, not afterthought.",
     link: "https://www.linkedin.com/posts/tripl3tr3s_mcp-aiengineering-buildinpublic-ugcPost-7457998591287054336-JkT-",
     date: "2026",
     tags: ["LLM Orchestration", "Cost Optimization", "MCP"],
+  },
+  {
+    title: "How Many Hops Are You From an EFOS?",
+    excerpt: "Traditional 69-B monitoring only asks 'is my supplier blacklisted?' But the risk that kills a deduction lives deeper in the network. efos-risk-graph models invoicing as a directed graph, propagates SAT blacklist risk with per-hop attenuation, explains the exact chain, and flags invoicing carousels. Open-core, verified by hand. Originally published in Spanish.",
+    link: "https://www.linkedin.com/posts/tripl3tr3s_fiscaltech-sat-opensource-activity-7483648510316138496-4nXl",
+    date: "2026",
+    tags: ["Fiscal Tech", "Open Source", "Graph Theory"],
   },
 ]
 
