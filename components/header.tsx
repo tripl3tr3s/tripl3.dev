@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, Download } from "lucide-react"
+import { Menu, X } from "lucide-react"
 import { motion } from "framer-motion"
 import { useTheme } from "next-themes"
 import Image from "next/image"
@@ -163,16 +163,6 @@ export default function Header() {
                 ))}
               </nav>
               <ThemeToggle />
-              <a
-                href="/cv"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/30 text-primary text-sm font-medium hover:bg-primary/10 transition-all"
-                data-umami-event="header-ver-cv"
-              >
-                <Download className="w-4 h-4" />
-                CV
-              </a>
             </div>
           )}
         </div>
