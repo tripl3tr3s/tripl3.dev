@@ -15,20 +15,25 @@ interface Project {
   id: string
   title: string
   desc: string
-  image: string
+  image?: string
   tags: string[]
   tech: string[]
   status: "live" | "development"
   privateLabel?: string
   liveLink?: string
   githubLink?: string
+  terminal?: {
+    install: string
+    diagram: string[]
+    footer: string
+  }
 }
 
 const projects: Project[] = [
   {
     id: "satMcp",
-    title: "SAT-MCP — 43-tool fiscal MCP server",
-    desc: "A production MCP server for Mexican tax compliance (CFDI 4.0). Full primitive set plus 8 MCP-UI mini-apps for in-chat document rendering, SSE + HTTP Streamable transport, multi-tenant CSD management, 5 PAC providers behind circuit breakers, and EFOS/EDOS blacklist monitoring. 5,500+ tests, 91%+ coverage, solo-built in strict TypeScript. Private commercial product — happy to walk through the architecture and code in an interview.",
+    title: "SAT-MCP: 43-tool fiscal MCP server",
+    desc: "A production MCP server for Mexican tax compliance (CFDI 4.0). Full primitive set plus 8 MCP-UI mini-apps for in-chat document rendering, SSE + HTTP Streamable transport, multi-tenant CSD management, 5 PAC providers behind circuit breakers, and EFOS/EDOS blacklist monitoring. 5,500+ tests, 91%+ coverage, solo-built in strict TypeScript. Private commercial product. Happy to walk through the architecture and code in an interview.",
     image: "/MCP_inspector.webp",
     tags: ["Tax Compliance", "MCP Protocol", "Automation", "FinTech"],
     tech: ["TypeScript", "SQLite", "MCP", "XML Signing", "Cryptography"],
@@ -37,8 +42,8 @@ const projects: Project[] = [
   },
   {
     id: "disaiConta",
-    title: "DISAI_Conta — 3-tier agent system",
-    desc: "An AI-native fiscal platform built on SAT-MCP. A Haiku router classifies ten fiscal domains in ~100ms, ten Sonnet domain agents run native tool_use loops (up to 6 iterations, parallel calls, self-correction), and an Expert Registry injects the right SAT catalog resources into context before the first call — which removes an entire class of hallucinated catalog codes without RAG query overhead. Langfuse traces everything; a HITL dashboard gates irreversible operations; streaming SSE chat built in Next.js 16.",
+    title: "DISAI_Conta: 3-tier agent system",
+    desc: "An AI-native fiscal platform built on SAT-MCP. A Haiku router classifies ten fiscal domains in ~100ms, ten Sonnet domain agents run native tool_use loops (up to 6 iterations, parallel calls, self-correction), and an Expert Registry injects the right SAT catalog resources into context before the first call, which removes an entire class of hallucinated catalog codes without RAG query overhead. Langfuse traces everything; a HITL dashboard gates irreversible operations; streaming SSE chat built in Next.js 16.",
     image: "/DISAI-Conta.webp",
     tags: ["MCP Protocol", "Multi-Agent", "LLM Orchestration", "SaaS"],
     tech: ["Next.js 16", "Claude API", "Anthropic SDK", "MCP Client", "shadcn/ui", "SSE"],
@@ -65,6 +70,71 @@ const projects: Project[] = [
     tech: ["n8n", "SQLite", "Docker", "Railway", "Bash"],
     status: "development",
     githubLink: "https://github.com/tripl3tr3s/n8n-freelancer-starter",
+  },
+]
+
+const ossProjects: Project[] = [
+  {
+    id: "mcpIdempotency",
+    title: "mcp-tool-idempotency",
+    desc: "Exactly-once execution for MCP tool calls (or any costly async op) so retries never fire side effects twice. A two-layer store: an in-process in-flight map that dedupes concurrent retries with zero round-trips, over a pluggable backend doing an atomic claim + TTL for cross-restart replay. Failed runs are never cached, so retries stay allowed. Zero-infra by default; 90%+ coverage.",
+    tags: ["MCP Protocol", "Idempotency", "Reliability"],
+    tech: ["TypeScript", "Concurrency", "Postgres", "Vitest"],
+    status: "live",
+    githubLink: "https://github.com/tripl3tr3s/mcp-tool-idempotency",
+    terminal: {
+      install: "pnpm add mcp-tool-idempotency",
+      diagram: ["retry ─► claim ─► run ×1", "        └ replay cached result"],
+      footer: "MIT · TypeScript · ≥90% cov",
+    },
+  },
+  {
+    id: "llmCostRouter",
+    title: "llm-cost-router",
+    desc: "Tiered model routing plus cache-accurate LLM cost tracking in ~200 lines of pure, immutable functions - no SDK, no network. Routes the cheapest model that can do the task and meters spend correctly, including prompt-cache multipliers (a cache read bills at ~0.10x, a cache write at ~1.25x) that naive trackers silently miscount. Ships an Anthropic pricing preset and session budget guards.",
+    tags: ["LLM Ops", "Cost Optimization", "Routing"],
+    tech: ["TypeScript", "Immutable", "Zero-dep", "Vitest"],
+    status: "live",
+    githubLink: "https://github.com/tripl3tr3s/llm-cost-router",
+    terminal: {
+      install: "pnpm add llm-cost-router",
+      diagram: ["small → Haiku   reasoning → Sonnet", "cache read ×0.10  write ×1.25"],
+      footer: "MIT · npm · zero-dep",
+    },
+  },
+  {
+    id: "agenticToolLoop",
+    title: "agentic-tool-loop",
+    desc: "A tiny, fully-typed agentic tool-use loop for the Anthropic Messages API - ~120 lines, no framework. The model calls multiple tools across turns, sees its own tool failures and self-corrects, and stops when it decides it's done, while hard guards keep it from running forever, hanging on a safety refusal, or sending a malformed follow-up. Exercised end-to-end against a scripted mock client - no API key needed to run the tests.",
+    tags: ["Agents", "Tool Use", "Anthropic API"],
+    tech: ["TypeScript", "Anthropic SDK", "Vitest"],
+    status: "live",
+    githubLink: "https://github.com/tripl3tr3s/agentic-tool-loop",
+    terminal: {
+      install: "pnpm add agentic-tool-loop",
+      diagram: ["model ⇄ tools  (multi-turn)", "self-correct · stop on end_turn"],
+      footer: "MIT · ~120 LOC · TypeScript",
+    },
+  },
+  {
+    id: "efosRiskGraph",
+    title: "efos-risk-graph",
+    desc: "Fiscal-risk propagation for the Mexican SAT Art. 69-B blacklist (EFOS/EDOS), derived from the math up. Models invoicing as a directed graph and answers 'how many hops am I from an EFOS?' - risk decays per hop, the score is the single worst chain (a max, with an explaining path an auditor can read), and a white/grey/black DFS flags invoicing carousels. Open-core: the engine is public, the edges stay private.",
+    tags: ["Graph Theory", "Tax Compliance", "FinTech"],
+    tech: ["TypeScript", "BFS/DFS", "npm", "Vitest"],
+    status: "live",
+    image: "/efos-risk-graph.webp",
+    githubLink: "https://github.com/tripl3tr3s/efos-risk-graph",
+  },
+  {
+    id: "eulerWorkedOut",
+    title: "euler-worked-out",
+    desc: "Project Euler solutions where the goal is understanding why it's the answer, not just the answer. Each problem is treated like a tiny paper: derive the closed-form insight by hand (inclusion-exclusion, arithmetic series, number theory), then verify it against a straightforward brute force in Python, and note the trade-offs (O(n) vs O(1)). If the hand derivation and the program disagree, one of them is wrong - and finding out which is the point.",
+    tags: ["Mathematics", "Algorithms", "Python"],
+    tech: ["Python 3", "Number Theory", "Proofs"],
+    status: "development",
+    image: "/euler-worked-out.webp",
+    githubLink: "https://github.com/tripl3tr3s/euler-worked-out",
   },
 ]
 
@@ -146,32 +216,67 @@ function ProjectCard({ project, itemVariants }: { project: Project; itemVariants
           style={{ opacity: 0 }}
         />
 
-        {/* Image with counter-parallax */}
-        <div className="relative h-48 overflow-hidden">
-          <motion.div
-            animate={{ x: imgOffset.x, y: imgOffset.y }}
-            transition={{ type: "spring", stiffness: 260, damping: 26 }}
-            className="absolute inset-0 scale-[1.14]"
-          >
-            <Image
-              src={project.image}
-              alt={project.title}
-              width={500}
-              height={300}
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-        <div className="absolute top-4 left-4">
-          <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-            project.status === "live"
-              ? "bg-primary/20 text-primary border border-primary/40"
-              : "bg-blue-500/20 text-blue-400 border border-blue-500/40"
-          }`}>
-            {project.status === "live" ? "Live" : "In Development"}
-          </span>
+        {project.terminal ? (
+          /* Terminal-style header for open-source libraries */
+          <div className="relative h-48 overflow-hidden bg-black/40 flex flex-col">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="flex gap-1.5 shrink-0">
+                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/60"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></span>
+                  <span className="w-2.5 h-2.5 rounded-full bg-green-500/60"></span>
+                </span>
+                <span className="font-mono text-xs text-muted-foreground truncate">{project.title}</span>
+              </div>
+              <span className={`shrink-0 px-2.5 py-0.5 text-[10px] font-medium rounded-full ${
+                project.status === "live"
+                  ? "bg-primary/20 text-primary border border-primary/40"
+                  : "bg-blue-500/20 text-blue-400 border border-blue-500/40"
+              }`}>
+                {project.status === "live" ? "Live" : "In Development"}
+              </span>
+            </div>
+            <div className="flex-1 px-4 py-3 font-mono text-xs leading-relaxed overflow-hidden">
+              <p className="truncate">
+                <span className="text-primary">$</span>{" "}
+                <span className="text-foreground/90">{project.terminal.install.replace(/^\$\s*/, "")}</span>
+              </p>
+              {project.terminal.diagram.map((line, i) => (
+                <p key={i} className="text-muted-foreground whitespace-pre truncate">{line}</p>
+              ))}
+            </div>
+            <div className="px-4 py-2 border-t border-border/60 font-mono text-[10px] text-muted-foreground/70 truncate">
+              {project.terminal.footer}
+            </div>
+          </div>
+        ) : (
+          /* Image with counter-parallax */
+          <div className="relative h-48 overflow-hidden">
+            <motion.div
+              animate={{ x: imgOffset.x, y: imgOffset.y }}
+              transition={{ type: "spring", stiffness: 260, damping: 26 }}
+              className="absolute inset-0 scale-[1.14]"
+            >
+              <Image
+                src={project.image ?? ""}
+                alt={project.title}
+                width={500}
+                height={300}
+                className="w-full h-full object-cover"
+              />
+            </motion.div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
+          <div className="absolute top-4 left-4">
+            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
+              project.status === "live"
+                ? "bg-primary/20 text-primary border border-primary/40"
+                : "bg-blue-500/20 text-blue-400 border border-blue-500/40"
+            }`}>
+              {project.status === "live" ? "Live" : "In Development"}
+            </span>
+          </div>
         </div>
-      </div>
+        )}
 
       <div className="p-6 relative z-20">
         <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
@@ -292,6 +397,26 @@ export default function Research() {
             className="grid md:grid-cols-2 gap-8 mb-20"
           >
             {projects.map((project, index) => (
+              <ProjectCard key={index} project={project} itemVariants={itemVariants} />
+            ))}
+          </motion.div>
+
+          {/* Open-Source Building Blocks subsection */}
+          <div className="max-w-3xl mx-auto text-center mb-12">
+            <h3 className="text-2xl md:text-3xl font-bold mb-4">Open-Source Building Blocks</h3>
+            <div className="h-1 w-16 bg-gradient-to-r from-green-600 to-teal-500 dark:from-green-400 dark:to-cyan-500 mx-auto mb-4"></div>
+            <p className="text-muted-foreground">
+              Small, fully-typed primitives I pulled out of building the platform - each solves one
+              production problem, ships with 90%+ test coverage, and is public on GitHub.
+            </p>
+          </div>
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate={isInView ? "visible" : "hidden"}
+            className="grid md:grid-cols-2 gap-8 mb-20"
+          >
+            {ossProjects.map((project, index) => (
               <ProjectCard key={index} project={project} itemVariants={itemVariants} />
             ))}
           </motion.div>
