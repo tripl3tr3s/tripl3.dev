@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entropy Collapse and Top-p Sampling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0B1220;
+    --panel:#121B2E;
+    --panel-2:#18233A;
+    --chalk:#E8EDF5;
+    --slate:#8A9AB8;
+    --slate-dim:#5D6D8C;
+    --amber:#E8A33D;
+    --teal:#4FB6A8;
+    --rose:#E2636B;
+    --line:#243049;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  *:focus-visible{outline:2px solid var(--amber);outline-offset:2px;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--ink);
+    color:var(--chalk);
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    line-height:1.5;
+    padding:48px 20px 80px;
+  }
+  .wrap{max-width:880px;margin:0 auto;}
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--rose);
+    margin:0 0 14px;
+  }
+  h1{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-style:italic;
+    font-size:clamp(26px,4vw,38px);
+    line-height:1.22;
+    margin:0 0 16px;
+    max-width:20ch;
+  }
+  .subhead{
+    color:var(--slate);
+    font-size:16px;
+    max-width:62ch;
+    margin:0 0 40px;
+  }
+  .subhead b{color:var(--chalk);font-weight:500;}
+
+  .stage{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px 28px 24px;
+    margin-bottom:20px;
+  }
+
+  .bar-wrap{margin-bottom:10px;}
+  .bar-caption{
+    display:flex;
+    justify-content:space-between;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--slate-dim);
+    margin-bottom:8px;
+  }
+  .bar-track{
+    position:relative;
+    display:flex;
+    width:100%;
+    height:64px;
+    border-radius:10px;
+    overflow:hidden;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+  }
+  .seg{
+    height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:width .5s cubic-bezier(.4,0,.2,1), opacity .3s ease;
+    position:relative;
+    min-width:0;
+    overflow:hidden;
+  }
+  .seg span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    font-weight:500;
+    color:#0B1220;
+    white-space:nowrap;
+    padding:0 6px;
+  }
+  .seg-1{background:var(--amber);}
+  .seg-2{background:var(--teal);}
+  .seg-3{background:var(--rose);}
+  .seg-3.excluded{
+    opacity:.35;
+    background-image:repeating-linear-gradient(135deg, rgba(0,0,0,.35) 0 6px, transparent 6px 12px);
+  }
+  .seg.pulse{animation:pulse .5s ease;}
+  @keyframes pulse{0%{filter:brightness(1.7);}100%{filter:brightness(1);}}
+  .lock-badge{
+    position:absolute;
+    top:-9px;
+    right:8px;
+    background:var(--ink);
+    border:1px solid var(--line);
+    color:var(--rose);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:3px 8px;
+    border-radius:20px;
+    display:none;
+    align-items:center;
+    gap:4px;
+  }
+  .lock-badge.show{display:flex;}
+  .topp-line{
+    position:absolute;
+    top:-6px;
+    bottom:-6px;
+    width:2px;
+    background:var(--chalk);
+    opacity:0;
+    transition:left .4s ease, opacity .3s ease;
+  }
+  .topp-line.show{opacity:.85;}
+  .topp-line::after{
+    content:'p threshold';
+    position:absolute;
+    top:-20px;
+    left:50%;
+    transform:translateX(-50%);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--chalk);
+    white-space:nowrap;
+  }
+
+  .stat-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:18px;
+  }
+  .stat-card{
+    background:var(--panel-2);
+    border-left:3px solid var(--amber);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .stat-card.tk2{border-left-color:var(--teal);}
+  .stat-card.tk3{border-left-color:var(--rose);}
+  .stat-name{
+    font-size:11px;
+    color:var(--slate);
+    margin-bottom:4px;
+  }
+  .stat-val{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:15px;
+  }
+
+  .controls{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px 28px;
+    margin-top:26px;
+    padding-top:22px;
+    border-top:1px solid var(--line);
+  }
+  .ctrl{display:flex;flex-direction:column;gap:6px;}
+  .ctrl label{
+    font-size:12px;
+    color:var(--slate);
+    display:flex;
+    justify-content:space-between;
+  }
+  .ctrl label b{
+    color:var(--chalk);
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:400;
+  }
+  input[type=range]{
+    -webkit-appearance:none;
+    width:100%;
+    height:4px;
+    background:var(--line);
+    border-radius:2px;
+    outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width:15px;height:15px;border-radius:50%;
+    background:var(--chalk);
+    cursor:pointer;
+    border:2px solid var(--ink);
+  }
+  input[type=range]::-moz-range-thumb{
+    width:15px;height:15px;border-radius:50%;
+    background:var(--chalk);
+    cursor:pointer;
+    border:2px solid var(--ink);
+  }
+  .ctrl-hint{font-size:11.5px;color:var(--slate-dim);}
+
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .switch{
+    position:relative;
+    width:40px;height:22px;
+    background:var(--line);
+    border-radius:20px;
+    cursor:pointer;
+    flex:none;
+    transition:background .25s ease;
+  }
+  .switch.on{background:var(--rose);}
+  .switch::after{
+    content:'';
+    position:absolute;
+    top:2px;left:2px;
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--chalk);
+    transition:left .25s ease;
+  }
+  .switch.on::after{left:20px;}
+
+  .btn-row{
+    display:flex;
+    gap:10px;
+    margin-top:22px;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:'IBM Plex Sans',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:var(--panel-2);
+    color:var(--chalk);
+    padding:10px 16px;
+    cursor:pointer;
+    transition:border-color .2s ease, background .2s ease;
+  }
+  button:hover{border-color:var(--slate-dim);}
+  button.primary{
+    background:var(--amber);
+    color:#0B1220;
+    border-color:var(--amber);
+  }
+  button.primary:hover{filter:brightness(1.08);}
+  button.running{
+    background:var(--rose);
+    border-color:var(--rose);
+    color:#0B1220;
+  }
+  button:disabled{opacity:.4;cursor:not-allowed;}
+
+  .bottom-grid{
+    display:grid;
+    grid-template-columns:220px 1fr;
+    gap:20px;
+    margin-top:8px;
+  }
+  .entropy-card{
+    background:var(--panel-2);
+    border-radius:10px;
+    padding:16px;
+  }
+  .entropy-label{font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:.08em;}
+  .entropy-value{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:30px;
+    margin:6px 0 2px;
+  }
+  .entropy-pct{font-size:12.5px;color:var(--slate-dim);}
+  .spark-card{
+    background:var(--panel-2);
+    border-radius:10px;
+    padding:16px;
+    display:flex;
+    flex-direction:column;
+  }
+  .spark-label{font-size:11px;color:var(--slate);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+  svg.spark{width:100%;height:88px;overflow:visible;}
+
+  .log-card{
+    margin-top:16px;
+    background:var(--panel-2);
+    border-radius:10px;
+    padding:6px 16px;
+    max-height:168px;
+    overflow-y:auto;
+  }
+  .log-line{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--slate);
+    padding:7px 0;
+    border-bottom:1px solid var(--line);
+  }
+  .log-line:last-child{border-bottom:none;}
+  .log-line.penalty{color:var(--rose);}
+  .log-line b{color:var(--chalk);font-weight:500;}
+
+  .math{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:26px 28px;
+    margin-bottom:20px;
+  }
+  .math h2{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-weight:500;
+    font-size:20px;
+    margin:0 0 16px;
+  }
+  .math-block{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:14px;
+    color:var(--chalk);
+    background:var(--panel-2);
+    border-radius:8px;
+    padding:16px 18px;
+    margin:12px 0;
+    line-height:1.9;
+    overflow-x:auto;
+  }
+  .math p{color:var(--slate);font-size:14.5px;max-width:70ch;}
+  .math .callout{
+    color:var(--chalk);
+    border-left:3px solid var(--amber);
+    padding-left:14px;
+    margin:18px 0;
+  }
+
+  .intro{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-left:3px solid var(--rose);
+    border-radius:var(--radius);
+    color:var(--slate);
+    font-size:13.5px;
+    padding:16px 20px;
+    margin-bottom:36px;
+  }
+  .intro b{color:var(--chalk);}
+
+  @media (max-width:700px){
+    .controls{grid-template-columns:1fr;}
+    .stat-row{grid-template-columns:1fr;}
+    .bottom-grid{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .seg{transition:none;}
+    .switch::after{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="intro">
+    <b>My answer to the 3b1b Talent challenge.</b> A live simulation of why RL policy-gradient updates on softmax outputs sharpen the whole probability distribution when a rare, low-reward token is penalized, and why restricting sampling to the top-p nucleus prevents it. Built to run interactively: adjust the starting logits, sample manually or auto-run, and toggle top-p on mid-run to watch the entropy trend change in real time.
+  </div>
+
+  <p class="eyebrow">Entropy collapse, visualized</p>
+  <h1>Punishing one rare token hands more probability to whichever token was already winning.</h1>
+  <p class="subhead">This is a live policy-gradient simulation of three tokens under softmax. Sample the rare token x₃ enough times and watch entropy fall, not because x₃ alone shrinks, but because the update that suppresses it is proportional to <b>each survivor's own current probability</b>. Turn on top-p and x₃ is excluded from ever being sampled, so the collapse never starts.</p>
+
+  <div class="stage">
+    <div class="bar-wrap">
+      <div class="bar-caption">
+        <span>probability mass, p = softmax(x)</span>
+        <span id="stepCounter">step 0</span>
+      </div>
+      <div class="bar-track" id="barTrack">
+        <div class="seg seg-1" id="seg1" style="width:71%"><span id="segLabel1">x₁ 71%</span></div>
+        <div class="seg seg-2" id="seg2" style="width:24%"><span id="segLabel2">x₂ 24%</span></div>
+        <div class="seg seg-3" id="seg3" style="width:5%"><span id="segLabel3">x₃ 5%</span></div>
+        <div class="topp-line" id="toppLine"></div>
+        <div class="lock-badge" id="lockBadge">🔒 x₃ excluded</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card tk1">
+        <div class="stat-name">x₁, dominant token</div>
+        <div class="stat-val" id="statX1">logit 1.50 · p 71.0%</div>
+      </div>
+      <div class="stat-card tk2">
+        <div class="stat-name">x₂, alternative token</div>
+        <div class="stat-val" id="statX2">logit 0.50 · p 24.4%</div>
+      </div>
+      <div class="stat-card tk3">
+        <div class="stat-name">x₃, rare / off-track token</div>
+        <div class="stat-val" id="statX3">logit -1.00 · p 4.6%</div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <div class="ctrl">
+        <label>Starting logit x₁ <b id="x1Read">1.50</b></label>
+        <input type="range" id="x1Slider" min="-3" max="3" step="0.1" value="1.5">
+      </div>
+      <div class="ctrl">
+        <label>Starting logit x₂ <b id="x2Read">0.50</b></label>
+        <input type="range" id="x2Slider" min="-3" max="3" step="0.1" value="0.5">
+      </div>
+      <div class="ctrl">
+        <label>Starting logit x₃ <b id="x3Read">-1.00</b></label>
+        <input type="range" id="x3Slider" min="-3" max="3" step="0.1" value="-1.0">
+        <span class="ctrl-hint">Moving these resets the simulation.</span>
+      </div>
+      <div class="ctrl">
+        <label>Penalty strength, η·|Â| <b id="etaRead">0.40</b></label>
+        <input type="range" id="etaSlider" min="0.1" max="1" step="0.05" value="0.4">
+        <span class="ctrl-hint">How hard one bad sample pushes the logits.</span>
+      </div>
+      <div class="ctrl">
+        <label>Top-p threshold <b id="toppRead">0.90</b></label>
+        <input type="range" id="toppSlider" min="0.5" max="0.99" step="0.01" value="0.9">
+        <span class="ctrl-hint">Smallest token set whose mass reaches this.</span>
+      </div>
+      <div class="ctrl">
+        <label>Top-p filtering</label>
+        <div class="toggle-row">
+          <div class="switch" id="toppSwitch"></div>
+          <span class="ctrl-hint" id="toppState">Off: x₃ can be sampled and penalized.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="primary" id="stepBtn">Sample once</button>
+      <button id="autoBtn">Auto-run 40 steps</button>
+      <button id="resetBtn">Reset</button>
+    </div>
+  </div>
+
+  <div class="bottom-grid">
+    <div class="entropy-card">
+      <div class="entropy-label">Entropy H(p)</div>
+      <div class="entropy-value" id="entropyVal">1.02 bits</div>
+      <div class="entropy-pct" id="entropyPct">64% of max (log₂3 = 1.585)</div>
+    </div>
+    <div class="spark-card">
+      <div class="spark-label">Entropy over the last 60 steps</div>
+      <svg class="spark" viewBox="0 0 600 88" preserveAspectRatio="none" id="sparkSvg">
+        <line x1="0" y1="0" x2="600" y2="0" stroke="#243049" stroke-width="1"/>
+        <line x1="0" y1="88" x2="600" y2="88" stroke="#243049" stroke-width="1"/>
+        <polyline id="sparkLine" fill="none" stroke="#E8A33D" stroke-width="2" points=""/>
+      </svg>
+    </div>
+  </div>
+
+  <div class="log-card" id="logCard"></div>
+
+  <div class="math" style="margin-top:20px;">
+    <h2>The derivation this is running</h2>
+    <p>Three tokens, logits x₁ &gt; x₂ ≫ x₃, probabilities pᵢ from softmax. Token 3 is sampled and its trajectory earns a negative advantage Â. The gradient of log p₃ with respect to the logits:</p>
+    <div class="math-block">∇ log p₃ = [ -p₁, -p₂, p₁+p₂ ]</div>
+    <p>The policy-gradient update is proportional to Â times that gradient. Since Â &lt; 0:</p>
+    <div class="math-block">Δx₁ ∝ |Â|·p₁&nbsp;&nbsp;&nbsp;&nbsp;Δx₂ ∝ |Â|·p₂&nbsp;&nbsp;&nbsp;&nbsp;Δx₃ ∝ -|Â|·(p₁+p₂)</div>
+    <p class="callout">x₁ and x₂ both increase, but each by an amount proportional to its own current probability. Since p₁ &gt; p₂, x₁ gains more than x₂ in absolute terms: the gap widens. Punishing a rare token is not a uniform reallocation, it is a proportional one, so whichever token was already ahead pulls further ahead. Run that over thousands of steps and the distribution keeps sharpening: entropy collapse.</p>
+    <p>Top-p sampling breaks the loop by excluding thin, off-distribution tokens like x₃ from the sampleable set entirely. If x₃ can never be drawn, it can never generate this update. The one wrinkle: doing this naively creates a new mismatch between what the trainer computes over the full vocabulary and what the sampler actually drew from, fixed by replaying the same kept-set mask at training time so both sides agree on the same renormalized distribution.</p>
+  </div>
+
+</div>
+
+<script>
+  const MAX_ENTROPY = Math.log2(3);
+  const HISTORY_LEN = 60;
+
+  let x = [1.5, 0.5, -1.0];
+  let step = 0;
+  let eta = 0.4;
+  let toppEnabled = false;
+  let toppThreshold = 0.9;
+  let history = [];
+  let autoTimer = null;
+  let autoRemaining = 0;
+
+  const el = id => document.getElementById(id);
+
+  function softmax(xs){
+    const m = Math.max(...xs);
+    const exps = xs.map(v => Math.exp(v - m));
+    const sum = exps.reduce((a,b) => a+b, 0);
+    return exps.map(e => e/sum);
+  }
+
+  function entropyBits(p){
+    return -p.reduce((acc, pi) => pi > 0 ? acc + pi*Math.log2(pi) : acc, 0);
+  }
+
+  function keptSet(p){
+    const order = [0,1,2].sort((a,b) => p[b]-p[a]);
+    let cum = 0;
+    const kept = new Set();
+    for (const i of order){
+      kept.add(i);
+      cum += p[i];
+      if (cum >= toppThreshold) break;
+    }
+    return kept;
+  }
+
+  function sampleIndex(p, kept){
+    let indices = [0,1,2];
+    let probs = p;
+    if (toppEnabled){
+      indices = [...kept];
+      const sum = indices.reduce((a,i) => a+p[i], 0);
+      probs = indices.map(i => p[i]/sum);
+    }
+    const r = Math.random();
+    let cum = 0;
+    for (let k=0;k<indices.length;k++){
+      cum += probs[k];
+      if (r <= cum) return indices[k];
+    }
+    return indices[indices.length-1];
+  }
+
+  function addLog(text, penalty){
+    const line = document.createElement('div');
+    line.className = 'log-line' + (penalty ? ' penalty' : '');
+    line.innerHTML = text;
+    el('logCard').prepend(line);
+    while (el('logCard').children.length > 40) el('logCard').removeChild(el('logCard').lastChild);
+  }
+
+  function stepOnce(){
+    const p = softmax(x);
+    const kept = keptSet(p);
+    const sampled = sampleIndex(p, kept);
+    step++;
+
+    if (sampled === 2){
+      const p1 = p[0], p2 = p[1];
+      const dx1 = eta*p1, dx2 = eta*p2, dx3 = -eta*(p1+p2);
+      x[0]+=dx1; x[1]+=dx2; x[2]+=dx3;
+      addLog(`<b>step ${step}</b>: sampled x₃ (p=${(p[2]*100).toFixed(1)}%), penalized. Δx₁=+${dx1.toFixed(3)} Δx₂=+${dx2.toFixed(3)} Δx₃=${dx3.toFixed(3)}`, true);
+      pulseSeg('seg3');
+    } else {
+      const tk = sampled+1;
+      addLog(`<b>step ${step}</b>: sampled x${tk} (p=${(p[sampled]*100).toFixed(1)}%), no penalty`, false);
+      pulseSeg('seg'+(sampled+1));
+    }
+
+    const newP = softmax(x);
+    const H = entropyBits(newP);
+    history.push(H);
+    if (history.length > HISTORY_LEN) history.shift();
+
+    render();
+  }
+
+  function pulseSeg(id){
+    const node = el(id);
+    node.classList.remove('pulse');
+    void node.offsetWidth;
+    node.classList.add('pulse');
+  }
+
+  function render(){
+    const p = softmax(x);
+    const kept = keptSet(p);
+    const excluded3 = toppEnabled && !kept.has(2);
+
+    el('seg1').style.width = (p[0]*100).toFixed(2)+'%';
+    el('seg2').style.width = (p[1]*100).toFixed(2)+'%';
+    el('seg3').style.width = (p[2]*100).toFixed(2)+'%';
+    el('segLabel1').textContent = `x₁ ${(p[0]*100).toFixed(0)}%`;
+    el('segLabel2').textContent = `x₂ ${(p[1]*100).toFixed(0)}%`;
+    el('segLabel3').textContent = `x₃ ${(p[2]*100).toFixed(0)}%`;
+    el('seg3').classList.toggle('excluded', excluded3);
+    el('lockBadge').classList.toggle('show', excluded3);
+
+    if (toppEnabled){
+      const order = [0,1,2].sort((a,b)=>p[b]-p[a]);
+      let cum = 0;
+      for (const i of order){ cum += p[i]; if (kept.has(i) && cum >= toppThreshold) break; }
+      el('toppLine').style.left = (Math.min(cum,1)*100).toFixed(2)+'%';
+      el('toppLine').classList.add('show');
+    } else {
+      el('toppLine').classList.remove('show');
+    }
+
+    el('statX1').textContent = `logit ${x[0].toFixed(2)} · p ${(p[0]*100).toFixed(1)}%`;
+    el('statX2').textContent = `logit ${x[1].toFixed(2)} · p ${(p[1]*100).toFixed(1)}%`;
+    el('statX3').textContent = `logit ${x[2].toFixed(2)} · p ${(p[2]*100).toFixed(1)}%`;
+
+    const H = entropyBits(p);
+    el('entropyVal').textContent = H.toFixed(3)+' bits';
+    el('entropyPct').textContent = `${((H/MAX_ENTROPY)*100).toFixed(0)}% of max (log₂3 = 1.585)`;
+    el('stepCounter').textContent = `step ${step}`;
+
+    renderSpark();
+  }
+
+  function renderSpark(){
+    const pts = history.map((h, i) => {
+      const xPos = (i/(HISTORY_LEN-1))*600;
+      const yPos = (1 - h/MAX_ENTROPY)*88;
+      return `${xPos.toFixed(1)},${yPos.toFixed(1)}`;
+    }).join(' ');
+    el('sparkLine').setAttribute('points', pts);
+  }
+
+  function resetSim(){
+    stopAuto();
+    x = [
+      parseFloat(el('x1Slider').value),
+      parseFloat(el('x2Slider').value),
+      parseFloat(el('x3Slider').value)
+    ];
+    step = 0;
+    history = [];
+    el('logCard').innerHTML = '';
+    render();
+  }
+
+  function startAuto(){
+    autoRemaining = 40;
+    el('autoBtn').textContent = 'Stop (40 queued)';
+    el('autoBtn').classList.add('running');
+    el('stepBtn').disabled = true;
+    autoTimer = setInterval(() => {
+      stepOnce();
+      autoRemaining--;
+      el('autoBtn').textContent = `Stop (${autoRemaining} queued)`;
+      if (autoRemaining <= 0) stopAuto();
+    }, 160);
+  }
+
+  function stopAuto(){
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+    el('autoBtn').textContent = 'Auto-run 40 steps';
+    el('autoBtn').classList.remove('running');
+    el('stepBtn').disabled = false;
+  }
+
+  el('stepBtn').addEventListener('click', stepOnce);
+  el('resetBtn').addEventListener('click', resetSim);
+  el('autoBtn').addEventListener('click', () => {
+    if (autoTimer) stopAuto(); else startAuto();
+  });
+
+  el('x1Slider').addEventListener('input', () => { el('x1Read').textContent = parseFloat(el('x1Slider').value).toFixed(2); resetSim(); });
+  el('x2Slider').addEventListener('input', () => { el('x2Read').textContent = parseFloat(el('x2Slider').value).toFixed(2); resetSim(); });
+  el('x3Slider').addEventListener('input', () => { el('x3Read').textContent = parseFloat(el('x3Slider').value).toFixed(2); resetSim(); });
+
+  el('etaSlider').addEventListener('input', () => {
+    eta = parseFloat(el('etaSlider').value);
+    el('etaRead').textContent = eta.toFixed(2);
+  });
+
+  el('toppSlider').addEventListener('input', () => {
+    toppThreshold = parseFloat(el('toppSlider').value);
+    el('toppRead').textContent = toppThreshold.toFixed(2);
+    render();
+  });
+
+  el('toppSwitch').addEventListener('click', () => {
+    toppEnabled = !toppEnabled;
+    el('toppSwitch').classList.toggle('on', toppEnabled);
+    el('toppState').textContent = toppEnabled
+      ? 'On: x₃ is excluded whenever it falls outside the top-p mass.'
+      : 'Off: x₃ can be sampled and penalized.';
+    render();
+  });
+
+  history.push(entropyBits(softmax(x)));
+  render();
+</script>
+</body>
+</html>
