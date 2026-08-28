@@ -1,14 +1,10 @@
 import type React from "react"
 import type { Metadata } from "next"
-import { Inter } from "next/font/google"
 import Script from "next/script"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { I18nProvider } from "@/lib/i18n-context"
-import MouseTrail from "@/components/mouse-trail"
 import { AnalyticsTracker } from "@/components/analytics-tracker"
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   title: "Triple Tres | AI Software Engineer · MCP Protocol · LLM Systems",
@@ -38,7 +34,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-background text-foreground antialiased`}>
+      <body className="bg-background text-foreground antialiased">
         <Script
           defer
           src="https://cloud.umami.is/script.js"
@@ -46,7 +42,6 @@ export default function RootLayout({
         />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} disableTransitionOnChange={false}>
           <I18nProvider>
-            <MouseTrail />
             <AnalyticsTracker />
             {children}
           </I18nProvider>

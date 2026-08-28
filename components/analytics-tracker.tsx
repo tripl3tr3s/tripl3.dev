@@ -16,12 +16,14 @@ type UmamiData = Record<string, string | number | boolean>
 export function AnalyticsTracker() {
   const sectionTimers = useRef<Map<string, number>>(new Map())
   const observerRef = useRef<IntersectionObserver | null>(null)
-  const engagementStart = useRef<number>(Date.now())
-  const lastActivity = useRef<number>(Date.now())
+  const engagementStart = useRef<number>(0)
+  const lastActivity = useRef<number>(0)
   const isActive = useRef<boolean>(true)
   const cleanups = useRef<Array<() => void>>([])
 
   useEffect(() => {
+    engagementStart.current = Date.now()
+    lastActivity.current = engagementStart.current
     const track = (name: string, data?: UmamiData) => window.umami?.track(name, data)
 
     const findSection = (el: Element): string => {

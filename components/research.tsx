@@ -1,474 +1,287 @@
 "use client"
 
-import React, { useRef, useState } from "react"
-import { motion, useInView, type Variants } from "framer-motion"
+import { useEffect, useRef, useState, type MouseEvent } from "react"
+import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
-import { ExternalLink, GitBranch, FileText, Lock } from "lucide-react"
+import { ArrowUpRight, CheckCircle2, Clock3, LockKeyhole, Pause, Play } from "lucide-react"
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+  caseStudies,
+  evidenceMetrics,
+  openSourceProjects,
+  type EvidenceStatus,
+  type ProjectEvidence,
+} from "@/lib/portfolio-data"
 
-interface Project {
-  id: string
-  title: string
-  desc: string
-  image?: string
-  tags: string[]
-  tech: string[]
-  status: "live" | "development"
-  privateLabel?: string
-  liveLink?: string
-  githubLink?: string
-  terminal?: {
-    install: string
-    diagram: string[]
-    footer: string
-  }
+const statusConfig: Record<EvidenceStatus, { label: string; Icon: typeof CheckCircle2; className: string }> = {
+  verified: { label: "Public proof", Icon: CheckCircle2, className: "text-emerald-700 dark:text-emerald-400" },
+  private: { label: "Private system", Icon: LockKeyhole, className: "text-amber-700 dark:text-amber-300" },
+  pending: { label: "Baseline pending", Icon: Clock3, className: "text-cyan-700 dark:text-cyan-300" },
 }
 
-const projects: Project[] = [
-  {
-    id: "satMcp",
-    title: "SAT-MCP: 43-tool fiscal MCP server",
-    desc: "A production MCP server for Mexican tax compliance (CFDI 4.0). Full primitive set plus 8 MCP-UI mini-apps for in-chat document rendering, SSE + HTTP Streamable transport, multi-tenant CSD management, 5 PAC providers behind circuit breakers, and EFOS/EDOS blacklist monitoring. 5,500+ tests, 91%+ coverage, solo-built in strict TypeScript. Private commercial product. Happy to walk through the architecture and code in an interview.",
-    image: "/MCP_inspector.webp",
-    tags: ["Tax Compliance", "MCP Protocol", "Automation", "FinTech"],
-    tech: ["TypeScript", "SQLite", "MCP", "XML Signing", "Cryptography"],
-    status: "development",
-    privateLabel: "Private, Commercial Product",
-  },
-  {
-    id: "disaiConta",
-    title: "DISAI_Conta: 3-tier agent system",
-    desc: "An AI-native fiscal platform built on SAT-MCP. A Haiku router classifies ten fiscal domains in ~100ms, ten Sonnet domain agents run native tool_use loops (up to 6 iterations, parallel calls, self-correction), and an Expert Registry injects the right SAT catalog resources into context before the first call, which removes an entire class of hallucinated catalog codes without RAG query overhead. Langfuse traces everything; a HITL dashboard gates irreversible operations; streaming SSE chat built in Next.js 16.",
-    image: "/DISAI-Conta.webp",
-    tags: ["MCP Protocol", "Multi-Agent", "LLM Orchestration", "SaaS"],
-    tech: ["Next.js 16", "Claude API", "Anthropic SDK", "MCP Client", "shadcn/ui", "SSE"],
-    status: "development",
-    privateLabel: "Private, Enterprise IP",
-  },
-  {
-    id: "terminal",
-    title: "Crypto / TradFi Analytics Terminal",
-    desc: "A real-time analytics dashboard aggregating on-chain and traditional market feeds over dual WebSockets, with a Node.js backend, Redis caching, and graceful degradation for low-latency uptime. React + TypeScript, Dockerized, deployed on Railway/Vercel.",
-    image: "/RD_Terminal.webp",
-    tags: ["React", "TypeScript", "Docker", "ApexCharts", "Real-Time Data"],
-    tech: ["Next.js", "Docker", "Axios", "Redis", "Dual WebSocket", "Custom API"],
-    status: "live",
-    liveLink: "https://retaildao-terminal.vercel.app/",
-    githubLink: "https://github.com/RetailDAO/website",
-  },
-  {
-    id: "n8nStarter",
-    title: "n8n freelancer starter",
-    desc: "A one-click Railway template for self-hosted n8n, production-configured, built to replace the $20–30/mo Zapier/Make dependency for small teams.",
-    image: "/n8n_freelancer_starter.webp",
-    tags: ["Open Source", "Automation", "Self-Hosting", "Cost-Optimization"],
-    tech: ["n8n", "SQLite", "Docker", "Railway", "Bash"],
-    status: "development",
-    githubLink: "https://github.com/tripl3tr3s/n8n-freelancer-starter",
-  },
-]
+function Status({ status }: { readonly status: EvidenceStatus }) {
+  const config = statusConfig[status]
+  return (
+    <span className={`inline-flex items-center gap-1.5 font-mono text-[11px] font-semibold uppercase tracking-wider ${config.className}`}>
+      <config.Icon className="h-3.5 w-3.5" aria-hidden="true" />
+      {config.label}
+    </span>
+  )
+}
 
-const ossProjects: Project[] = [
-  {
-    id: "mcpIdempotency",
-    title: "mcp-tool-idempotency",
-    desc: "Exactly-once execution for MCP tool calls (or any costly async op) so retries never fire side effects twice. A two-layer store: an in-process in-flight map that dedupes concurrent retries with zero round-trips, over a pluggable backend doing an atomic claim + TTL for cross-restart replay. Failed runs are never cached, so retries stay allowed. Zero-infra by default; 90%+ coverage.",
-    tags: ["MCP Protocol", "Idempotency", "Reliability"],
-    tech: ["TypeScript", "Concurrency", "Postgres", "Vitest"],
-    status: "live",
-    githubLink: "https://github.com/tripl3tr3s/mcp-tool-idempotency",
-    terminal: {
-      install: "pnpm add mcp-tool-idempotency",
-      diagram: ["retry ─► claim ─► run ×1", "        └ replay cached result"],
-      footer: "MIT · TypeScript · ≥90% cov",
-    },
-  },
-  {
-    id: "llmCostRouter",
-    title: "llm-cost-router",
-    desc: "Tiered model routing plus cache-accurate LLM cost tracking in ~200 lines of pure, immutable functions - no SDK, no network. Routes the cheapest model that can do the task and meters spend correctly, including prompt-cache multipliers (a cache read bills at ~0.10x, a cache write at ~1.25x) that naive trackers silently miscount. Ships an Anthropic pricing preset and session budget guards.",
-    tags: ["LLM Ops", "Cost Optimization", "Routing"],
-    tech: ["TypeScript", "Immutable", "Zero-dep", "Vitest"],
-    status: "live",
-    githubLink: "https://github.com/tripl3tr3s/llm-cost-router",
-    terminal: {
-      install: "pnpm add llm-cost-router",
-      diagram: ["small → Haiku   reasoning → Sonnet", "cache read ×0.10  write ×1.25"],
-      footer: "MIT · npm · zero-dep",
-    },
-  },
-  {
-    id: "agenticToolLoop",
-    title: "agentic-tool-loop",
-    desc: "A tiny, fully-typed agentic tool-use loop for the Anthropic Messages API - ~120 lines, no framework. The model calls multiple tools across turns, sees its own tool failures and self-corrects, and stops when it decides it's done, while hard guards keep it from running forever, hanging on a safety refusal, or sending a malformed follow-up. Exercised end-to-end against a scripted mock client - no API key needed to run the tests.",
-    tags: ["Agents", "Tool Use", "Anthropic API"],
-    tech: ["TypeScript", "Anthropic SDK", "Vitest"],
-    status: "live",
-    githubLink: "https://github.com/tripl3tr3s/agentic-tool-loop",
-    terminal: {
-      install: "pnpm add agentic-tool-loop",
-      diagram: ["model ⇄ tools  (multi-turn)", "self-correct · stop on end_turn"],
-      footer: "MIT · ~120 LOC · TypeScript",
-    },
-  },
-  {
-    id: "efosRiskGraph",
-    title: "efos-risk-graph",
-    desc: "Fiscal-risk propagation for the Mexican SAT Art. 69-B blacklist (EFOS/EDOS), derived from the math up. Models invoicing as a directed graph and answers 'how many hops am I from an EFOS?' - risk decays per hop, the score is the single worst chain (a max, with an explaining path an auditor can read), and a white/grey/black DFS flags invoicing carousels. Open-core: the engine is public, the edges stay private.",
-    tags: ["Graph Theory", "Tax Compliance", "FinTech"],
-    tech: ["TypeScript", "BFS/DFS", "npm", "Vitest"],
-    status: "live",
-    image: "/efos-risk-graph.webp",
-    githubLink: "https://github.com/tripl3tr3s/efos-risk-graph",
-  },
-  {
-    id: "eulerWorkedOut",
-    title: "euler-worked-out",
-    desc: "Project Euler solutions where the goal is understanding why it's the answer, not just the answer. Each problem is treated like a tiny paper: derive the closed-form insight by hand (inclusion-exclusion, arithmetic series, number theory), then verify it against a straightforward brute force in Python, and note the trade-offs (O(n) vs O(1)). If the hand derivation and the program disagree, one of them is wrong - and finding out which is the point.",
-    tags: ["Mathematics", "Algorithms", "Python"],
-    tech: ["Python 3", "Number Theory", "Proofs"],
-    status: "development",
-    image: "/euler-worked-out.webp",
-    githubLink: "https://github.com/tripl3tr3s/euler-worked-out",
-  },
-]
-
-const analysisReports = [
-  {
-    title: "On-Chain Data Signals: A Framework for Market Structure Analysis",
-    year: 2025,
-    link: "https://docs.google.com/document/d/e/2PACX-1vQN6k3vqjq8jraYzvwWvHgr7vMSkOC-sLxIUuUpob-u8k6r1pHAQDFvkV2VuAWQEFCWkkJ1BFYErfVc/pub",
-  },
-  {
-    title: "BNB Ecosystem Architecture: A Technical and Economic Assessment",
-    year: 2024,
-    link: "https://docs.google.com/document/d/e/2PACX-1vRVg4Ir_mafKgxc2GZixv6pKSDjilH1AlLCr_DzsPFN10anWUHEXC9zZ9Kkz7NvaKTs6CTK-UIQRyp8/pub",
-  },
-  {
-    title: "SEI Protocol: Tokenomics, Design Tradeoffs, and Investment Thesis",
-    year: 2024,
-    link: "https://docs.google.com/document/d/e/2PACX-1vRVg4Ir_mafKgxc2GZixv6pKSDjilH1AlLCr_DzsPFN10anWUHEXC9zZ9Kkz7NvaKTs6CTK-UIQRyp8/pub",
-  },
-  {
-    title: "Institutional Entry into Digital Asset Markets: A Structural Analysis",
-    year: 2024,
-    link: "https://docs.google.com/document/d/e/2PACX-1vQECKZHvd8iOw5y8LYNDEVgQP50xMQzC7oIFlOfK1lMPpWJfYB2aR2qDEpIMfOekgUUR2cDYd_tu0Dm/pub",
-  },
-  {
-    title: "Speculative Asset Cycles: Why Narrative-Driven Markets Fail at Scale",
-    year: 2024,
-    link: "https://docs.google.com/document/d/e/2PACX-1vTqsPMavIVPp2Sf2XY3GPEMRg4-cLfZ4WuuWZNAf4JYWIlWM7S8f4TMnc1-XTfmRhedsxcCw8xeZiW9/pub",
-  },
-  {
-    title: "Full Research Archive",
-    year: "2024–2025",
-    link: "https://docs.google.com/document/d/e/2PACX-1vRAKgSHq_Ui8XC8nHRVDLmy1nMz8OzsHkj0-vsanC0GdFQ7VWEyeDsq794gpgnre5nMxVHSuRVQGaom/pub",
-  },
-]
-
-function ProjectCard({ project, itemVariants }: { project: Project; itemVariants: Variants }) {
-  const cardRef = useRef<HTMLDivElement>(null)
+function EvidenceCard({ metric, index }: { readonly metric: ProjectEvidence; readonly index: number }) {
+  const cardRef = useRef<HTMLElement>(null)
   const spotRef = useRef<HTMLDivElement>(null)
+  const reducedMotion = useReducedMotion()
   const [tilt, setTilt] = useState({ x: 0, y: 0 })
-  const [imgOffset, setImgOffset] = useState({ x: 0, y: 0 })
+  const config = statusConfig[metric.status]
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = cardRef.current!.getBoundingClientRect()
-    const px = (e.clientX - rect.left - rect.width / 2) / (rect.width / 2)
-    const py = (e.clientY - rect.top - rect.height / 2) / (rect.height / 2)
+  const handleMouseMove = (event: MouseEvent<HTMLElement>) => {
+    if (reducedMotion) return
+    const rect = cardRef.current?.getBoundingClientRect()
+    if (!rect || rect.width === 0 || rect.height === 0) return
+
+    const px = (event.clientX - rect.left - rect.width / 2) / (rect.width / 2)
+    const py = (event.clientY - rect.top - rect.height / 2) / (rect.height / 2)
     setTilt({ x: py * -5, y: px * 5 })
-    setImgOffset({ x: px * -8, y: py * -6 })
+
     if (spotRef.current) {
-      const x = ((e.clientX - rect.left) / rect.width) * 100
-      const y = ((e.clientY - rect.top) / rect.height) * 100
-      spotRef.current.style.background = `radial-gradient(220px circle at ${x}% ${y}%, rgba(16,185,129,0.1), transparent 70%)`
+      const x = ((event.clientX - rect.left) / rect.width) * 100
+      const y = ((event.clientY - rect.top) / rect.height) * 100
+      spotRef.current.style.background = `radial-gradient(180px circle at ${x}% ${y}%, hsl(var(--primary) / 0.16), transparent 70%)`
       spotRef.current.style.opacity = "1"
     }
   }
 
   const handleMouseLeave = () => {
     setTilt({ x: 0, y: 0 })
-    setImgOffset({ x: 0, y: 0 })
     if (spotRef.current) spotRef.current.style.opacity = "0"
   }
 
   return (
-    <motion.div variants={itemVariants}>
-      <motion.div
+    <motion.div
+      className="h-full"
+      initial={reducedMotion ? false : { opacity: 0, y: 18 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: index * 0.06 }}
+    >
+      <motion.article
         ref={cardRef}
-        animate={{ rotateX: tilt.x, rotateY: tilt.y }}
-        transition={{ type: "spring", stiffness: 260, damping: 26 }}
+        aria-label={`${metric.label}: ${metric.value}`}
+        animate={{ rotateX: reducedMotion ? 0 : tilt.x, rotateY: reducedMotion ? 0 : tilt.y }}
+        transition={{ type: "spring", stiffness: 280, damping: 24 }}
+        whileHover={reducedMotion ? undefined : { y: -6, scale: 1.01 }}
+        whileTap={reducedMotion ? undefined : { scale: 0.98 }}
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        className="tilt-card bg-card/30 rounded-2xl overflow-hidden border border-border hover:border-primary/30 transition-colors group relative cursor-pointer"
-        whileTap={{ scale: 0.985, transition: { type: "spring", stiffness: 500, damping: 20 } }}
-        style={{ transformPerspective: 1000 }}
+        className="tilt-card glass-card group relative h-full cursor-default overflow-hidden rounded-2xl border border-border p-5 transition-colors duration-300 hover:border-primary/45 focus-within:border-primary/60"
+        style={{ transformPerspective: 800 }}
       >
-        {/* Cursor spotlight */}
         <div
           ref={spotRef}
-          className="pointer-events-none absolute inset-0 z-10 rounded-2xl transition-opacity duration-300"
+          className="pointer-events-none absolute inset-0 z-0 rounded-2xl transition-opacity duration-300"
           style={{ opacity: 0 }}
+          aria-hidden="true"
         />
-
-        {project.terminal ? (
-          /* Terminal-style header for open-source libraries */
-          <div className="relative h-48 overflow-hidden bg-black/40 flex flex-col">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-border/60 bg-muted/30">
-              <div className="flex items-center gap-2 min-w-0">
-                <span className="flex gap-1.5 shrink-0">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500/60"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></span>
-                  <span className="w-2.5 h-2.5 rounded-full bg-green-500/60"></span>
-                </span>
-                <span className="font-mono text-xs text-muted-foreground truncate">{project.title}</span>
-              </div>
-              <span className={`shrink-0 px-2.5 py-0.5 text-[10px] font-medium rounded-full ${
-                project.status === "live"
-                  ? "bg-primary/20 text-primary border border-primary/40"
-                  : "bg-blue-500/20 text-blue-400 border border-blue-500/40"
-              }`}>
-                {project.status === "live" ? "Live" : "In Development"}
-              </span>
-            </div>
-            <div className="flex-1 px-4 py-3 font-mono text-xs leading-relaxed overflow-hidden">
-              <p className="truncate">
-                <span className="text-primary">$</span>{" "}
-                <span className="text-foreground/90">{project.terminal.install.replace(/^\$\s*/, "")}</span>
-              </p>
-              {project.terminal.diagram.map((line, i) => (
-                <p key={i} className="text-muted-foreground whitespace-pre truncate">{line}</p>
-              ))}
-            </div>
-            <div className="px-4 py-2 border-t border-border/60 font-mono text-[10px] text-muted-foreground/70 truncate">
-              {project.terminal.footer}
-            </div>
-          </div>
-        ) : (
-          /* Image with counter-parallax */
-          <div className="relative h-48 overflow-hidden">
-            <motion.div
-              animate={{ x: imgOffset.x, y: imgOffset.y }}
-              transition={{ type: "spring", stiffness: 260, damping: 26 }}
-              className="absolute inset-0 scale-[1.14]"
-            >
-              <Image
-                src={project.image ?? ""}
-                alt={project.title}
-                width={500}
-                height={300}
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent"></div>
-          <div className="absolute top-4 left-4">
-            <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-              project.status === "live"
-                ? "bg-primary/20 text-primary border border-primary/40"
-                : "bg-blue-500/20 text-blue-400 border border-blue-500/40"
-            }`}>
-              {project.status === "live" ? "Live" : "In Development"}
+        <div className="relative z-10">
+          <div className="mb-5 flex items-start justify-between gap-3">
+            <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-muted/70 text-primary transition-colors duration-300 group-hover:border-primary/30 group-hover:bg-primary/10">
+              <config.Icon className="h-5 w-5" aria-hidden="true" />
+            </span>
+            <span className={`font-mono text-[10px] font-bold uppercase tracking-[0.14em] ${config.className}`}>
+              {config.label}
             </span>
           </div>
+          <p className="font-mono text-2xl font-black tracking-tight">{metric.value}</p>
+          <p className="mt-1 text-sm font-semibold">{metric.label}</p>
+          {metric.status === "verified" ? (
+            <a href={metric.href} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" data-umami-event="evidence-open-source">
+              Verify on GitHub
+            </a>
+          ) : (
+            <p className="mt-3 text-xs text-muted-foreground">{metric.note}</p>
+          )}
         </div>
-        )}
-
-      <div className="p-6 relative z-20">
-        <h3 className="text-xl font-bold mb-3 text-foreground group-hover:text-primary transition-colors">
-          {project.title}
-        </h3>
-        <p className="text-muted-foreground mb-4 text-sm">{project.desc}</p>
-
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground mb-2">Tech Stack:</p>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {project.tech.map((tech, i) => (
-              <span key={i} className="px-2 py-1 text-xs font-medium rounded bg-muted/50 text-muted-foreground border border-border">
-                {tech}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-2 mb-4">
-          {project.tags.map((tag, i) => (
-            <span key={i} className="px-3 py-1 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        {project.privateLabel ? (
-          <div className="flex items-center gap-2 mt-2">
-            <Lock className="w-4 h-4 text-muted-foreground/60" />
-            <span className="text-sm text-muted-foreground/60 font-medium">{project.privateLabel}</span>
-          </div>
-        ) : (
-          <div className="flex gap-3">
-            {project.liveLink && (
-              <a
-                href={project.liveLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary border border-primary/20 rounded-lg hover:bg-primary/20 transition-all"
-                data-umami-event={`proyecto-demo-${project.id}`}
-              >
-                <ExternalLink className="w-4 h-4" />
-                Live Demo
-              </a>
-            )}
-            {project.githubLink ? (
-              <a
-                href={project.githubLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 px-4 py-2 bg-muted/50 text-muted-foreground border border-border rounded-lg hover:bg-muted/70 transition-all"
-                data-umami-event={`proyecto-codigo-${project.id}`}
-              >
-                <GitBranch className="w-4 h-4" />
-                Code
-              </a>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-muted/50 text-muted-foreground border border-border rounded-lg cursor-help opacity-60">
-                    <GitBranch className="w-4 h-4" />
-                    Code
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Private Repository</p>
-                </TooltipContent>
-              </Tooltip>
-            )}
-          </div>
-        )}
-      </div>
-      </motion.div>
+      </motion.article>
     </motion.div>
   )
 }
 
-export default function Research() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, amount: 0.2 })
+function CaseStudyVideo({ src, poster, title }: { readonly src: string; readonly poster: string; readonly title: string }) {
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const reducedMotion = useReducedMotion()
+  const [shouldLoad, setShouldLoad] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.2 },
-    },
-  }
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.6 },
-    },
+    if (!("IntersectionObserver" in window)) {
+      const timer = globalThis.setTimeout(() => setShouldLoad(true), 0)
+      return () => globalThis.clearTimeout(timer)
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting)
+        if (entry.isIntersecting) setShouldLoad(true)
+      },
+      { rootMargin: "240px 0px" },
+    )
+
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    if (shouldLoad && isVisible && !reducedMotion) {
+      void video.play().catch(() => undefined)
+      return
+    }
+
+    if (!video.paused) video.pause()
+  }, [isVisible, reducedMotion, shouldLoad])
+
+  const togglePlayback = () => {
+    const video = videoRef.current
+    if (!video) return
+    if (video.paused) {
+      setShouldLoad(true)
+      void video.play().catch(() => undefined)
+      return
+    }
+    video.pause()
   }
 
   return (
-    <TooltipProvider>
-      <section id="projects" className="py-20 bg-gradient-to-b from-background to-background/90 relative">
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent"></div>
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-green-500/20 to-transparent"></div>
+    <div className="relative h-full w-full">
+      <video
+        ref={videoRef}
+        aria-label={`${title} CLI demonstration`}
+        src={shouldLoad ? src : undefined}
+        poster={poster}
+        preload={shouldLoad ? "metadata" : "none"}
+        muted
+        loop
+        playsInline
+        onPlay={() => setIsPlaying(true)}
+        onPause={() => setIsPlaying(false)}
+        className="h-full w-full object-cover object-left"
+      />
+      <button
+        type="button"
+        onClick={togglePlayback}
+        aria-label={`${isPlaying ? "Pause" : "Play"} ${title} demonstration`}
+        className="absolute bottom-4 right-4 z-10 inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-white/20 bg-black/80 text-white transition-colors hover:border-primary/60 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+      >
+        {isPlaying ? <Pause className="h-4 w-4" aria-hidden="true" /> : <Play className="h-4 w-4" aria-hidden="true" />}
+      </button>
+    </div>
+  )
+}
 
-        <div className="container mx-auto px-4">
-          {/* Projects heading */}
-          <div className="max-w-3xl mx-auto text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">Projects</h2>
-            <div className="h-1 w-20 bg-gradient-to-r from-green-600 to-teal-500 dark:from-green-400 dark:to-cyan-500 mx-auto"></div>
-          </div>
-
-          {/* Project cards grid */}
-          <motion.div
-            ref={ref}
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            className="grid md:grid-cols-2 gap-8 mb-20"
-          >
-            {projects.map((project, index) => (
-              <ProjectCard key={index} project={project} itemVariants={itemVariants} />
-            ))}
-          </motion.div>
-
-          {/* Open-Source Building Blocks subsection */}
-          <div className="max-w-3xl mx-auto text-center mb-12">
-            <h3 className="text-2xl md:text-3xl font-bold mb-4">Open-Source Building Blocks</h3>
-            <div className="h-1 w-16 bg-gradient-to-r from-green-600 to-teal-500 dark:from-green-400 dark:to-cyan-500 mx-auto mb-4"></div>
-            <p className="text-muted-foreground">
-              Small, fully-typed primitives I pulled out of building the platform - each solves one
-              production problem, ships with 90%+ test coverage, and is public on GitHub.
-            </p>
-          </div>
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate={isInView ? "visible" : "hidden"}
-            className="grid md:grid-cols-2 gap-8 mb-20"
-          >
-            {ossProjects.map((project, index) => (
-              <ProjectCard key={index} project={project} itemVariants={itemVariants} />
-            ))}
-          </motion.div>
-
-          {/* Systems Analysis subsection */}
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <h3 className="text-2xl font-bold mb-3">Systems Analysis</h3>
-              <p className="text-muted-foreground">
-                Before building AI systems, I spent years producing deep technical research on complex
-                economic and protocol systems: consensus mechanism design, cryptoeconomic incentive
-                structures, Layer 2 scaling architectures, and on-chain market microstructure. The same
-                pattern recognition and architectural thinking now drives how I design and reason about
-                AI infrastructure.
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {analysisReports.map((report, index) => (
-                <motion.a
-                  key={index}
-                  href={report.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, x: -10 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.4, delay: index * 0.05 }}
-                  className="flex items-center justify-between p-4 rounded-lg border border-border hover:border-green-500/30 hover:bg-green-500/5 transition-colors group"
-                  whileHover={{ x: 3, transition: { type: "spring", stiffness: 500, damping: 22 } }}
-                  data-umami-event={`analisis-${index}`}
-                >
-                  <div className="flex items-center gap-3">
-                    <motion.div whileHover={{ scale: 1.2, rotate: -8, transition: { type: "spring", stiffness: 400, damping: 12 } }}>
-                      <FileText className="w-4 h-4 text-muted-foreground/60 flex-shrink-0" />
-                    </motion.div>
-                    <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors draw-underline">
-                      {report.title}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-3 flex-shrink-0 ml-4">
-                    <span className="text-xs text-muted-foreground/60">{report.year}</span>
-                    <motion.div whileHover={{ x: 2, y: -2, transition: { type: "spring", stiffness: 500, damping: 15 } }}>
-                      <ExternalLink className="w-3 h-3 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-                    </motion.div>
-                  </div>
-                </motion.a>
-              ))}
-            </div>
-          </div>
+export default function Research() {
+  return (
+    <section id="work" className="relative border-y border-border/70 bg-card/20 pb-20 pt-6 sm:pb-28 sm:pt-8">
+      <div className="container mx-auto px-4">
+        <div className="grid gap-5 border-b border-border pb-12 sm:grid-cols-2 lg:grid-cols-4">
+          {evidenceMetrics.map((metric, index) => (
+            <EvidenceCard key={metric.id} metric={metric} index={index} />
+          ))}
         </div>
-      </section>
-    </TooltipProvider>
+
+        <div className="mb-12 mt-16 max-w-3xl">
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary">Selected systems</p>
+          <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-5xl">Production architecture, with the tradeoffs exposed.</h2>
+          <p className="mt-5 text-lg leading-8 text-muted-foreground">Each case focuses on the problem, system boundary, safeguards, and what I personally owned.</p>
+        </div>
+
+        <div className="grid gap-7">
+          {caseStudies.map((project, index) => (
+            <article key={project.id} id={project.id === "ai-reliability-lab" ? "lab" : undefined} className="group grid overflow-hidden rounded-3xl border border-border bg-background/65 lg:grid-cols-[0.72fr_1.28fr]">
+              <div className="relative min-h-64 overflow-hidden border-b border-border bg-black lg:min-h-full lg:border-b-0 lg:border-r">
+                {project.video ? (
+                  <CaseStudyVideo src={project.video.src} poster={project.video.poster} title={project.title} />
+                ) : project.image ? (
+                  <Image src={project.image} alt={`${project.title} interface`} width={900} height={600} className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-[1.025]" />
+                ) : (
+                  <div className="flex h-full min-h-64 items-center justify-center p-8 topology-grid">
+                    <div className="rounded-2xl border border-primary/30 bg-black/80 p-7 text-center shadow-[0_0_60px_hsl(var(--primary)/0.15)]">
+                      <p className="font-mono text-xs uppercase tracking-[0.2em] text-primary">direct vs routed</p>
+                      <p className="mt-3 text-3xl font-black text-white">eval / score / compare</p>
+                    </div>
+                  </div>
+                )}
+                <span className="absolute bottom-4 left-4 rounded-full border border-white/15 bg-black/75 px-3 py-1 font-mono text-xs text-white">0{index + 1}</span>
+              </div>
+
+              <div className="p-6 sm:p-9">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <p className="font-mono text-xs font-semibold uppercase tracking-[0.18em] text-primary">{project.eyebrow}</p>
+                  <Status status={project.status} />
+                </div>
+                <h3 className="mt-3 text-3xl font-black tracking-tight">{project.title}</h3>
+
+                <dl className="mt-7 grid gap-5 text-sm leading-6 sm:grid-cols-2">
+                  <div><dt className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Problem</dt><dd className="mt-2">{project.problem}</dd></div>
+                  <div><dt className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Architecture</dt><dd className="mt-2">{project.architecture}</dd></div>
+                </dl>
+
+                <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+                  <p className="font-mono text-xs font-bold uppercase tracking-wider text-muted-foreground">Safety and reliability</p>
+                  <ul className="mt-3 grid gap-2 text-sm sm:grid-cols-3">
+                    {project.safeguards.map((safeguard) => <li key={safeguard} className="flex gap-2"><CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden="true" />{safeguard}</li>)}
+                  </ul>
+                </div>
+
+                <p className="mt-5 text-sm text-muted-foreground"><span className="font-semibold text-foreground">Ownership:</span> {project.ownership}</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {project.links.map((link) => (
+                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10" data-umami-event={`case-${project.id}`}>
+                      {link.label}<ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        <div className="mb-10 mt-24 max-w-2xl">
+          <p className="font-mono text-xs font-bold uppercase tracking-[0.2em] text-primary">Open source</p>
+          <h2 className="mt-3 text-3xl font-black tracking-tight sm:text-4xl">Small primitives extracted from real systems.</h2>
+        </div>
+        <div className="grid gap-5 md:grid-cols-2">
+          {openSourceProjects.map((project) => (
+            <a
+              key={project.id}
+              href={project.links[0].href}
+              target="_blank"
+              rel="noreferrer"
+              aria-label={`Open ${project.title} on ${project.kind === "package" ? "npm" : "GitHub"}`}
+              className="group rounded-2xl border border-border bg-background/65 p-6 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              data-umami-event={`open-source-${project.id}`}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[10px] font-bold uppercase tracking-[0.16em] text-primary">
+                    {project.kind === "package" ? "Published npm package" : "Public GitHub repository"}
+                  </p>
+                  <h3 className="mt-2 font-mono text-lg font-black">{project.title}</h3>
+                </div>
+                <ArrowUpRight className="h-5 w-5 text-muted-foreground transition-colors group-hover:text-primary" aria-hidden="true" />
+              </div>
+              <p className="mt-4 text-sm leading-6 text-muted-foreground">{project.purpose}</p>
+              <code className="mt-5 block overflow-x-auto rounded-lg bg-black px-4 py-3 text-xs text-emerald-300">$ {project.command}</code>
+              <p className="mt-4 text-xs font-semibold text-foreground">{project.proof}</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
   )
 }

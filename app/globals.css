@@ -65,14 +65,78 @@
   --background-end-rgb: 10, 10, 10;
 }
 
-* {
-  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
 body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
   scroll-behavior: smooth;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 6rem;
+}
+
+::selection {
+  color: hsl(var(--primary-foreground));
+  background: hsl(var(--primary));
+}
+
+:focus-visible {
+  outline-color: hsl(var(--primary));
+}
+
+.hero-grid,
+.topology-grid {
+  background-image:
+    linear-gradient(to right, hsl(var(--foreground) / 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--foreground) / 0.055) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: linear-gradient(to bottom, black 45%, transparent 100%);
+}
+
+.topology-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.055) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.055) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: none;
+}
+
+.topology-line {
+  stroke: hsl(var(--primary) / 0.42);
+  stroke-width: 0.7;
+  stroke-dasharray: 2 2;
+}
+
+.topology-node {
+  color: rgb(212 212 216);
+  background: rgb(9 9 11 / 0.9);
+  border-color: rgb(63 63 70);
+  box-shadow: 0 8px 30px rgb(0 0 0 / 0.35);
+  transition: color 160ms ease, border-color 160ms ease, background-color 160ms ease;
+}
+
+.topology-node:hover,
+.topology-node[aria-pressed="true"] {
+  color: rgb(255 255 255);
+  background: hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Custom scrollbar */
@@ -161,4 +225,3 @@ body {
 .draw-underline:hover {
   background-size: 100% 1.5px;
 }
-

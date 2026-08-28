@@ -9,13 +9,13 @@ import Footer from "@/components/footer"
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-background to-background/90">
+    <main className="min-h-screen overflow-x-clip bg-gradient-to-b from-background to-background/90">
       <Header />
       <Hero />
-      <About />
-      <Certifications />
       <Research />
       <Writing />
+      <About />
+      <Certifications />
       <Contact />
       <Footer />
     </main>

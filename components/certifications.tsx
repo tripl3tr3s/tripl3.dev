@@ -272,7 +272,7 @@ function FeaturedCard({ cert, onSelect, t }: {
           </motion.div>
 
           <div className="flex-1 text-center md:text-left">
-            <div className={`${style.text} font-bold text-sm mb-2`}>🏆 {t('certifications.featured')}</div>
+            <div className={`${style.text} font-bold text-sm mb-2`}>{t('certifications.featured')}</div>
             <h3 className="text-2xl md:text-3xl font-bold mb-2">{cert.title}</h3>
             <p className="text-muted-foreground mb-4">
               {cert.platform} • {cert.date}
@@ -293,7 +293,7 @@ function FeaturedCard({ cert, onSelect, t }: {
   )
 }
 
-function CertificateModal({ cert, onClose, t }: { cert: Certificate; onClose: () => void; t: (key: string) => string }) {
+function CertificateModal({ cert, onClose }: { cert: Certificate; onClose: () => void }) {
   const isImage = cert.file.endsWith('.webp') || cert.file.endsWith('.png') || cert.file.endsWith('.jpg')
 
   return (
@@ -432,7 +432,6 @@ export default function Certifications() {
         <CertificateModal
           cert={selectedCert}
           onClose={() => setSelectedCert(null)}
-          t={t}
         />
       )}
     </>

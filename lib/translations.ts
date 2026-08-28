@@ -29,7 +29,7 @@ export const translations = {
     },
   },
   footer: {
-    rights: "All rights reserved.",
+    rights: "All rights reserved. All lefts reversed 🄯",
   },
 }
 

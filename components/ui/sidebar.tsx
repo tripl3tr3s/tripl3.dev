@@ -67,7 +67,7 @@ const SidebarProvider = React.forwardRef<
     },
     ref
   ) => {
-    const isMobile = useMediaQuery("(max.width: 768px)")
+    const isMobile = useMediaQuery("(max-width: 768px)")
     // This is the state of the mobile sidebar.
     const [openMobile, setOpenMobile] = React.useState(false)
 
@@ -651,10 +651,7 @@ const SidebarMenuSkeleton = React.forwardRef<
     showIcon?: boolean
   }
 >(({ className, showIcon = false, ...props }, ref) => {
-  // Random width between 50 to 90%.
-  const width = React.useMemo(() => {
-    return `${Math.floor(Math.random() * 40) + 50}%`
-  }, [])
+  const width = showIcon ? "70%" : "82%"
 
   return (
     <div
