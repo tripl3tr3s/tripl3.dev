@@ -1,8 +1,9 @@
 "use client"
 
+import Link from "next/link"
 import { motion, useInView } from "framer-motion"
 import { useRef, useState, useCallback } from "react"
-import { ExternalLink, ChevronLeft, ChevronRight } from "lucide-react"
+import { ExternalLink, ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 
 interface Post {
   title: string
@@ -10,43 +11,57 @@ interface Post {
   link: string
   date: string
   tags: string[]
+  internal?: boolean
 }
 
 const posts: Post[] = [
   {
-    title: "122,449 Operations Per Minute: Benchmarking a Production MCP Server",
-    excerpt: "How a minimal n8n Railway deployment and a custom MCP server hit 122x the market leader's throughput, with 0% error rate at 1.16ms average latency. Originally published in Spanish.",
-    link: "https://www.linkedin.com/posts/tripl3tr3s_hace-un-par-de-d%C3%ADas-alcanc%C3%A9-un-hito-que-me-ugcPost-7395001162833387520-A22X",
-    date: "2026",
-    tags: ["MCP Server", "Performance", "Benchmarking"],
-  },
-  {
-    title: "AI Strategy is Not Business Strategy with AI Bolted On",
-    excerpt: "Why AI initiatives that don't tie back to clear business drivers are expensive experiments. What MLOps, PoC scoping, and responsible design actually look like in practice.",
-    link: "https://www.linkedin.com/posts/tripl3tr3s_aistrategy-businessai-mlops-share-7437688675934789632-uTg5",
-    date: "2026",
-    tags: ["AI Strategy", "MLOps", "Engineering"],
-  },
-  {
-    title: "Building AI-Native Mexican Fiscal Compliance: 7 Months Solo",
-    excerpt: "CFDI 4.0, EFOS/EDOS blacklist monitoring, CSD state management: rule-dense fiscal compliance is the ideal AI domain. What 'AI-native' actually means when engineered, not marketed.",
-    link: "https://www.linkedin.com/posts/tripl3tr3s_mcp-aiengineering-buildinpublic-share-7457548155954475008-a6CF",
-    date: "2026",
-    tags: ["AI Engineering", "Build in Public", "DISAI"],
-  },
-  {
-    title: "80% of Requests Never Hit the Expensive Model",
-    excerpt: "How 3-tier routing cuts cost without degrading quality: a Haiku classifier (~100ms, 60 tokens) → domain specialists → Sonnet for full orchestration. Routing as architecture, not afterthought.",
-    link: "https://www.linkedin.com/posts/tripl3tr3s_mcp-aiengineering-buildinpublic-ugcPost-7457998591287054336-JkT-",
-    date: "2026",
-    tags: ["LLM Orchestration", "Cost Optimization", "MCP"],
+    title: "FDE Field Notes: Starting an AI-Native Build With a Facilities Audit",
+    excerpt: "New engagement: designing a custom AI-native operating system for a Mexican waste management company with zero digital infrastructure today. Before any architecture gets decided, it starts with a levantamiento - a real facilities walkthrough.",
+    link: "/writing/fde-field-notes-ai-native-build-facilities-audit",
+    date: "Sep 2026",
+    tags: ["Build in Public", "Forward Deployed Engineering", "DISAI"],
+    internal: true,
   },
   {
     title: "How Many Hops Are You From an EFOS?",
     excerpt: "Traditional 69-B monitoring only asks 'is my supplier blacklisted?' But the risk that kills a deduction lives deeper in the network. efos-risk-graph models invoicing as a directed graph, propagates SAT blacklist risk with per-hop attenuation, explains the exact chain, and flags invoicing carousels. Open-core, verified by hand. Originally published in Spanish.",
-    link: "https://www.linkedin.com/posts/tripl3tr3s_fiscaltech-sat-opensource-activity-7483648510316138496-4nXl",
-    date: "2026",
+    link: "/writing/how-many-hops-are-you-from-an-efos",
+    date: "Jul 2026",
     tags: ["Fiscal Tech", "Open Source", "Graph Theory"],
+    internal: true,
+  },
+  {
+    title: "80% of Requests Never Hit the Expensive Model",
+    excerpt: "How 3-tier routing cuts cost without degrading quality: a Haiku classifier (~100ms, 60 tokens) → domain specialists → Sonnet for full orchestration. Routing as architecture, not afterthought.",
+    link: "/writing/80-percent-of-requests-never-hit-the-expensive-model",
+    date: "May 2026",
+    tags: ["LLM Orchestration", "Cost Optimization", "MCP"],
+    internal: true,
+  },
+  {
+    title: "Building AI-Native Mexican Fiscal Compliance: 7 Months Solo",
+    excerpt: "CFDI 4.0, EFOS/EDOS blacklist monitoring, CSD state management: rule-dense fiscal compliance is the ideal AI domain. What 'AI-native' actually means when engineered, not marketed.",
+    link: "/writing/building-ai-native-mexican-fiscal-compliance-7-months-solo",
+    date: "May 2026",
+    tags: ["AI Engineering", "Build in Public", "DISAI"],
+    internal: true,
+  },
+  {
+    title: "AI Strategy is Not Business Strategy with AI Bolted On",
+    excerpt: "Why AI initiatives that don't tie back to clear business drivers are expensive experiments. What MLOps, PoC scoping, and responsible design actually look like in practice.",
+    link: "/writing/ai-strategy-is-not-business-strategy-with-ai-bolted-on",
+    date: "Mar 2026",
+    tags: ["AI Strategy", "MLOps", "Engineering"],
+    internal: true,
+  },
+  {
+    title: "122,449 Operations Per Minute: Benchmarking a Production MCP Server",
+    excerpt: "How a minimal n8n Railway deployment and a custom MCP server hit 122x the market leader's throughput, with 0% error rate at 1.16ms average latency. Originally published in Spanish.",
+    link: "/writing/122449-operations-per-minute-mcp-server",
+    date: "Nov 2025",
+    tags: ["MCP Server", "Performance", "Benchmarking"],
+    internal: true,
   },
 ]
 
@@ -149,34 +164,20 @@ export default function Writing() {
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
           >
-            {posts.map((post, index) => (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                className="snap-start shrink-0 w-[85vw] sm:w-[360px]"
-              >
-                <motion.a
-                  href={post.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-full flex flex-col bg-card/30 rounded-2xl border border-border hover:border-green-500/30 hover:bg-green-500/5 transition-colors group p-6 relative overflow-hidden"
-                  whileHover={{ y: -6, transition: { type: "spring", stiffness: 400, damping: 20 } }}
-                  whileTap={{ scale: 0.98, y: 0 }}
-                  data-umami-event={`writing-post-${index}`}
-                  draggable={false}
-                >
+            {posts.map((post, index) => {
+              const cardContent = (
+                <>
                   <span className="absolute left-0 top-0 h-full w-[3px] bg-gradient-to-b from-primary to-cyan-500 scale-y-0 group-hover:scale-y-100 origin-top transition-transform duration-300 ease-out rounded-l-2xl" />
 
                   <div className="flex-1">
                     <div className="flex flex-wrap gap-2 mb-4">
                       {post.tags.map((tag, i) => (
-                        <motion.span
+                        <span
                           key={i}
                           className="px-2 py-0.5 text-xs font-medium rounded-full bg-primary/10 text-primary border border-primary/20"
-                          whileHover={{ scale: 1.08, transition: { type: "spring", stiffness: 500, damping: 14 } }}
                         >
                           {tag}
-                        </motion.span>
+                        </span>
                       ))}
                     </div>
                     <h3 className="text-lg font-bold mb-3 text-foreground group-hover:text-primary transition-colors leading-snug">
@@ -187,14 +188,51 @@ export default function Writing() {
                     </p>
                   </div>
                   <div className="flex items-center justify-between mt-6 pt-4 border-t border-border/50">
-                    <span className="text-xs text-muted-foreground/60">{post.date} · LinkedIn</span>
-                    <motion.div whileHover={{ x: 2, y: -2, transition: { type: "spring", stiffness: 500, damping: 14 } }}>
+                    <span className="text-xs text-muted-foreground/60">
+                      {post.date}
+                      {!post.internal && " · LinkedIn"}
+                    </span>
+                    {post.internal ? (
+                      <ArrowRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                    ) : (
                       <ExternalLink className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
-                    </motion.div>
+                    )}
                   </div>
-                </motion.a>
-              </motion.div>
-            ))}
+                </>
+              )
+
+              return (
+                <motion.div
+                  key={index}
+                  variants={itemVariants}
+                  className="snap-start shrink-0 w-[85vw] sm:w-[360px]"
+                >
+                  {post.internal ? (
+                    <Link
+                      href={post.link}
+                      className="h-full flex flex-col bg-card/30 rounded-2xl border border-border hover:border-green-500/30 hover:bg-green-500/5 hover:-translate-y-1.5 active:scale-[0.98] active:translate-y-0 transition-all duration-300 ease-out group p-6 relative overflow-hidden"
+                      data-umami-event={`writing-post-${index}`}
+                      draggable={false}
+                    >
+                      {cardContent}
+                    </Link>
+                  ) : (
+                    <motion.a
+                      href={post.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="h-full flex flex-col bg-card/30 rounded-2xl border border-border hover:border-green-500/30 hover:bg-green-500/5 transition-colors group p-6 relative overflow-hidden"
+                      whileHover={{ y: -6, transition: { type: "spring", stiffness: 400, damping: 20 } }}
+                      whileTap={{ scale: 0.98, y: 0 }}
+                      data-umami-event={`writing-post-${index}`}
+                      draggable={false}
+                    >
+                      {cardContent}
+                    </motion.a>
+                  )}
+                </motion.div>
+              )
+            })}
           </motion.div>
         </div>
       </div>
