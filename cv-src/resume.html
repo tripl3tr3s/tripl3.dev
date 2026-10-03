@@ -1,0 +1,208 @@
+<!doctype html>
+<!--
+  ATS-friendly source for public/cv/resume.pdf (the downloadable CV).
+  Single column, real text, standard section headings, no tables or graphics.
+  Regenerate from the repo root:
+    chromium --headless --no-pdf-header-footer --print-to-pdf=public/cv/resume.pdf cv-src/resume.html
+-->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Ricardo Jaimes - AI Engineer</title>
+    <meta name="author" content="Ricardo Jaimes Chavez" />
+    <style>
+      @page { size: Letter; margin: 0.55in 0.6in; }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 9.6pt;
+        line-height: 1.36;
+        color: #111;
+        background: #fff;
+      }
+      h1 { font-size: 17pt; letter-spacing: 0.2px; }
+      .headline { font-size: 10.5pt; font-weight: bold; margin-top: 2px; }
+      .contact { margin-top: 3px; font-size: 9pt; }
+      .contact a { color: #111; text-decoration: none; }
+      h2 {
+        font-size: 10.5pt;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        border-bottom: 1px solid #111;
+        margin: 11px 0 5px;
+        padding-bottom: 1px;
+      }
+      p + p { margin-top: 4px; }
+      .job { margin-top: 7px; }
+      .job-title { font-weight: bold; }
+      ul { margin: 3px 0 0 15px; }
+      li { margin-top: 2.5px; }
+      li strong { font-weight: bold; }
+      .skills p { margin-top: 2px; }
+      a { color: #111; }
+    </style>
+  </head>
+  <body>
+    <h1>Ricardo Jaimes Chavez</h1>
+    <div class="headline">AI Engineer | Production LLM and Agentic Systems on Structured Financial Data</div>
+    <div class="contact">
+      hola@tripl3.dev | <a href="https://tripl3.dev">tripl3.dev</a> |
+      <a href="https://github.com/tripl3tr3s">github.com/tripl3tr3s</a> |
+      <a href="https://linkedin.com/in/tripl3tr3s">linkedin.com/in/tripl3tr3s</a> |
+      Queretaro, Mexico (CST, remote)
+    </div>
+
+    <h2>Summary</h2>
+    <p>
+      AI engineer building production agentic systems in high-stakes financial domains. Since
+      2025 in Mexican fiscal compliance, where a wrong output is a legal filing with the tax
+      authority. Shipped solo: a production MCP server (46 tools), a three-tier Claude
+      orchestration layer with cost-aware model routing, and an AI-native compliance platform in
+      private beta with CI-gated evals, end-to-end observability, multi-tenant security,
+      human-in-the-loop approval on irreversible operations, and 8,900+ tests across two repos.
+      Previously Lead Developer at RetailDAO, where I led a smart-contract audit and executed the
+      on-chain governance action that permanently capped the token supply. Python and
+      TypeScript/Node. English-first documentation and async collaboration with North American
+      teams.
+    </p>
+
+    <h2>Experience</h2>
+
+    <div class="job">
+      <div class="job-title">AI Engineer and Founder, DISAI (independent) | Jun 2025 - Present</div>
+      <ul>
+        <li>
+          <strong>Production MCP server (46 tools, 18 prompts, 95 resources).</strong> Designed,
+          built and operate a Model Context Protocol server (TypeScript/Node, Railway) covering the
+          full CFDI 4.0 lifecycle: invoicing, payroll, carta porte, payment complements, PAC
+          stamping and multi-tenant credentials. Migrated to MCP SDK v2 and the stateless
+          2026-07-28 protocol within a week of its release.
+        </li>
+        <li>
+          <strong>Three-tier agentic orchestration on Claude.</strong> Haiku 4.5 router with a
+          deterministic tie-break across 10 fiscal domains, 10 domain agents using native tool use
+          with agentic loops and self-correction, scoped tool allowlists, and cost-aware model
+          routing (Sonnet 4.6, Sonnet 5, Opus 4.8).
+        </li>
+        <li>
+          <strong>Reliability under irreversible operations.</strong> Human-in-the-loop
+          confirmation before any tax-authority stamping, exactly-once stamping via in-process
+          single-flight plus an atomic PostgreSQL claim, fail-open vs fail-closed policy per
+          subsystem, and DB-persisted circuit breakers on PAC providers.
+        </li>
+        <li>
+          <strong>Multi-tenant security.</strong> PostgreSQL row-level security, short-lived
+          HMAC-signed request assertions per org and tool, encrypted per-tenant certificates, TOTP
+          MFA, Redis-backed rate limiting and a structured auth audit trail.
+        </li>
+        <li>
+          <strong>Retrieval and context injection.</strong> Domain-scoped retrieval over MCP
+          resources with live per-domain context injection and fuzzy search across 52k+ SAT
+          catalog entries. Designed the hybrid retrieval upgrade (trigram plus embeddings, RRF)
+          where retrieval only proposes candidates and exact validation commits.
+        </li>
+        <li>
+          <strong>Evals, testing and observability.</strong> Routing eval harness gating CI on
+          every pull request; Langfuse tracing with per-session cost attribution and Sentry for
+          errors. 8,900+ tests from unit and contract through integration and Playwright E2E; the
+          MCP server holds 97% line and 90% branch coverage, enforced in CI.
+        </li>
+        <li>
+          <strong>Production ownership.</strong> 28 architecture decision records and 8 written
+          postmortems with root cause, blast radius, fix and lesson.
+        </li>
+        <li>
+          <strong>Applied mathematics.</strong> Supplier-network risk graph with BFS propagation
+          and DFS cycle detection for tax-fraud carousels; published the decay bound and released
+          it as the open-source efos-risk-graph npm package.
+        </li>
+        <li>
+          <strong>Full-stack and delivery.</strong> Next.js 16 / React 19 frontend, Node backend,
+          PostgreSQL and Redis, Zod validation at every boundary. Ran discovery with Mexican
+          accounting firms and turned regulatory requirements into agent workflows, building solo
+          with Claude Code and reviewing all generated code before production.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-title">Core Contributor / Lead Developer, RetailDAO (Base mainnet) | Jun 2024 - Jan 2026</div>
+      <ul>
+        <li>
+          Led the smart-contract audit that traced an active-mint risk flag to an Aragon plugin
+          retaining execute() permissions; designed and executed the mitigation that made the mint
+          DAO immutable and capped supply at 1B tokens, passed by on-chain token-weighted vote.
+        </li>
+        <li>
+          Built a real-time crypto analytics terminal aggregating 8+ sources over WebSockets with
+          Redis caching, rate limiting, exponential backoff and graceful degradation (React,
+          Node.js, Redis, Docker).
+        </li>
+        <li>
+          Authored and shipped the full protocol documentation site (Docusaurus, GitHub Pages).
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-title">Data and Research Analyst, Coinsider | Mar 2024 - Sep 2025</div>
+      <ul>
+        <li>
+          Delivered 25+ peer-reviewed analytics reports (1,200+ pages) on investor risk, market
+          structure and macro forecasting, reaching 70k+ views. Hired after a multi-stage
+          technical assessment.
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-title">Data Analysis Consultant, Chainlabs (short engagement) | Jun 2025</div>
+      <ul>
+        <li>
+          Delivered Python wallet-analysis notebooks for a European crypto-intelligence firm:
+          OSINT, cross-chain data wrangling and relational graphs (Plotly, Matplotlib).
+        </li>
+      </ul>
+    </div>
+
+    <div class="job">
+      <div class="job-title">Earlier background</div>
+      <p>
+        Self-directed work in crypto and decentralized systems from 2020 (protocol mechanics,
+        on-chain operations, quantitative market analysis), after 12+ years as a graphic designer,
+        illustrator and tattoo studio owner.
+      </p>
+    </div>
+
+    <h2>Skills</h2>
+    <div class="skills">
+      <p><strong>AI / LLM:</strong> LLM application development, AI agents, multi-agent orchestration, agentic loops, prompt engineering, evals, hallucination control, human-in-the-loop, cost-aware model routing, retrieval and context injection, Claude API, tool use / function calling, Model Context Protocol (MCP)</p>
+      <p><strong>Languages and backend:</strong> Python, TypeScript, Node.js, SQL, REST APIs, Server-Sent Events, Streamable HTTP, object-oriented design</p>
+      <p><strong>Data and infrastructure:</strong> PostgreSQL, SQLite, Redis, Docker, WebSockets, caching, rate limiting, circuit breakers, idempotency</p>
+      <p><strong>Security:</strong> multi-tenant isolation (row-level security), HMAC request signing, TOTP MFA, encrypted credential storage, audit logging</p>
+      <p><strong>Frontend:</strong> React, Next.js, Tailwind CSS, shadcn/ui</p>
+      <p><strong>DevOps and practices:</strong> CI/CD (GitHub Actions), Git, Railway, Vercel, Vitest, Playwright, Zod, Langfuse, Sentry, ADRs, postmortems, technical documentation</p>
+      <p><strong>AI-assisted engineering:</strong> Claude Code, Gemini CLI, OpenCode (daily production use), AI-driven code review</p>
+    </div>
+
+    <h2>Selected Projects</h2>
+    <ul>
+      <li><strong>SAT-MCP Server:</strong> production MCP server for Mexican fiscal compliance; 46 tools, 95 resources, 9 in-chat MCP Apps; 6,400+ tests.</li>
+      <li><strong>DISAI-Conta:</strong> AI-native fiscal compliance platform for accounting firms, in private beta; router plus 10 domain agents, CI-gated routing evals, 2,500+ tests.</li>
+      <li><strong>AI Reliability and Evaluation Lab:</strong> open-source, reproducible benchmark comparing direct Sonnet 5 with routed Haiku/Sonnet agents, with hashed datasets and CI spend ceilings.</li>
+      <li><strong>Open-source libraries:</strong> efos-risk-graph, agentic-tool-loop, llm-cost-router, mcp-tool-idempotency.</li>
+      <li><strong>Technical writing:</strong> engineering write-ups on model routing, MCP throughput and risk-graph math at tripl3.dev/writing.</li>
+    </ul>
+
+    <h2>Education and Certifications</h2>
+    <ul>
+      <li>B.A. Graphic Design, Universidad Autonoma de Aguascalientes (2013)</li>
+      <li>MIT OCW 6.1200J, Mathematics for Computer Science (self-study, in progress)</li>
+      <li>Anthropic (2025): Model Context Protocol: Advanced Topics; Introduction to Model Context Protocol; Claude Code in Action; AI Fluency: Framework and Foundations</li>
+      <li>DataCamp: Building Scalable Agentic Systems (2025); n8n: Self-Hosted for Enterprises (2025)</li>
+    </ul>
+
+    <h2>Languages</h2>
+    <p>Spanish: native | English: professional working proficiency</p>
+  </body>
+</html>

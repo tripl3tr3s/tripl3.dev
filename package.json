@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "cv:pdf": "chromium --headless --no-pdf-header-footer --print-to-pdf=public/cv/resume.pdf cv-src/resume.html"
   },
   "dependencies": {
     "@emotion/is-prop-valid": "latest",

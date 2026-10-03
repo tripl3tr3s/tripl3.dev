@@ -358,7 +358,8 @@
       }
 
       .exp-bullets a,
-      .exp-note a {
+      .exp-note a,
+      .project-card a {
         color: #e05a2b;
         text-decoration: none;
         border-bottom: 1px dotted #6b3620;
@@ -698,7 +699,7 @@
         .skill-row { padding: 3.5px 0; grid-template-columns: 92px 1fr; }
         .project-grid { gap: 8px; }
         .project-card { padding: 9px 11px; }
-        .exp-bullets a, .exp-note a { border-bottom: none; }
+        .exp-bullets a, .exp-note a, .project-card a { border-bottom: none; }
         .cv-actions { display: none !important; }
       }
     </style>
@@ -740,7 +741,7 @@
             <span class="tag">HITL</span>
             <span class="tag">Cost-Aware Routing</span>
             <span class="tag">Context Injection</span>
-            <span class="tag">SSE Transport</span>
+            <span class="tag">Streamable HTTP</span>
             <span class="tag">Langfuse</span>
             <span class="tag">n8n Flows</span>
           </div>
@@ -808,9 +809,9 @@
             fiscal compliance, where a wrong output is a legal filing with the tax authority.
             Shipped solo: a production <strong>MCP server (46 tools)</strong>, a three-tier Claude
             orchestration layer with cost-aware model routing, and a full AI-native compliance
-            platform with chat interface, STT input, prompt engineering, eval coverage, end-to-end
-            observability, human-in-the-loop approval on irreversible operations, and
-            <strong>6,638+ tests at 91% coverage</strong>.
+            platform (in private beta) with chat interface, STT input, CI-gated evals, end-to-end
+            observability, multi-tenant security, human-in-the-loop approval on irreversible
+            operations, and <strong>8,900+ tests across two repos</strong>.
           </p>
           <p>
             Previously led development at RetailDAO, where I ran smart-contract audits and executed
@@ -838,49 +839,66 @@
               Context Protocol server (TypeScript/Node, Railway) covering the full CFDI 4.0
               lifecycle: invoicing, payroll, carta porte, payment complements, live SAT catalog
               injection, EFOS blacklist sync, PAC stamping, multi-tenant credential handling.
-              <strong>~1.2ms median tool dispatch under sustained load.</strong>
+              Migrated to MCP SDK v2 and the <strong>stateless 2026-07-28 protocol within a week of
+              its release</strong>, keeping 2025-era clients working from the same endpoint.
               <span class="stack-pill">MCP</span><span class="stack-pill">TypeScript</span><span class="stack-pill">Railway</span>
             </li>
             <li>
-              <strong>Three-tier agentic orchestration on Claude.</strong> Routing agent classifying
-              10 fiscal domains, 10 domain agents using native tool use with agentic loops and
-              self-correction, scoped tool allowlists, and cost-aware model routing across
-              Haiku/Sonnet/Opus tiers.
+              <strong>Three-tier agentic orchestration on Claude.</strong> Haiku 4.5 router with a
+              deterministic regex tie-break across 10 fiscal domains, 10 domain agents using native
+              tool use with agentic loops and self-correction, server-synced tool allowlists, and
+              cost-aware executioner routing (Sonnet 4.6 standard, Sonnet 5 advanced, Opus 4.8
+              escalation).
               <span class="stack-pill">Claude API</span><span class="stack-pill">Tool Use</span><span class="stack-pill">Multi-Agent</span>
             </li>
             <li>
-              <strong>Reliability under irreversible operations.</strong> Human-in-the-loop approval
-              gate before any tax-authority stamping, two-layer idempotency, single-flight
-              deduplication on lazy loading, fail-open vs fail-closed policy per subsystem, and
-              circuit breakers on third-party stamping (PAC) providers.
+              <strong>Reliability under irreversible operations.</strong> Human-in-the-loop
+              confirmation gate before any tax-authority stamping; exactly-once PAC stamping via
+              in-process single-flight plus an atomic PostgreSQL claim; fail-open vs fail-closed
+              policy per subsystem; DB-persisted circuit breakers on stamping (PAC) providers.
               <span class="stack-pill">HITL</span><span class="stack-pill">Idempotency</span><span class="stack-pill">Circuit Breakers</span>
             </li>
             <li>
-              <strong>Retrieval and context injection.</strong> Domain-scoped retrieval over 54+ MCP
-              resources (SAT catalogs, document templates, regulatory docs, blacklists) with live
-              per-domain context injection, lazy loading and single-flight deduplication. SAT catalog
-              lookup via fuzzy string matching across 52k+ catalog entries. Chose deterministic
-              resource retrieval over vector search: fiscal answers must be complete and
-              reproducible, and re-indexing must not silently change last quarter's output.
-              <span class="stack-pill">MCP Resources</span><span class="stack-pill">Fuzzy Matching</span>
+              <strong>Multi-tenant security.</strong> PostgreSQL row-level security, short-lived
+              HMAC-signed assertions binding each org to the tool it calls, encrypted per-tenant
+              signing certificates, TOTP MFA, Redis-backed rate limiting, timing-safe key checks
+              and a structured auth audit trail.
+              <span class="stack-pill">RLS</span><span class="stack-pill">HMAC</span><span class="stack-pill">MFA</span>
             </li>
             <li>
-              <strong>Evals &amp; observability.</strong> Versioned prompt templates and system
-              instructions across all agents; eval coverage plus end-to-end tracing (Langfuse) with
-              per-session cost attribution and failure triage. Five-tier test strategy from unit
-              through contract to E2E smoke, <strong>6,638+ tests at 91% coverage</strong>.
-              <span class="stack-pill">Langfuse</span><span class="stack-pill">Vitest</span>
+              <strong>Retrieval and context injection.</strong> Domain-scoped retrieval over 95 MCP
+              resources (SAT catalogs, templates, regulatory docs, versioned domain skills,
+              blacklists) with live per-domain context injection. Accent-insensitive fuzzy search
+              across 52k+ catalog entries. Designed the hybrid upgrade (trigram + embeddings, RRF) so
+              retrieval only proposes candidates and exact validation alone commits a code, with
+              exact kNN over ANN to keep results reproducible.
+              <span class="stack-pill">MCP Resources</span><span class="stack-pill">Retrieval</span>
+            </li>
+            <li>
+              <strong>Evals &amp; observability.</strong> Routing eval harness (golden set, 4 scorers)
+              gating CI offline on every PR and live on main; Langfuse tracing with per-session cost
+              attribution, Sentry for errors. <strong>8,900+ tests across two repos</strong> from
+              unit and contract through VCR replay, integration, smoke and Playwright E2E; the MCP
+              server holds <strong>97% line / 90% branch coverage</strong>, enforced in CI.
+              <span class="stack-pill">Evals</span><span class="stack-pill">Langfuse</span><span class="stack-pill">Vitest</span>
+            </li>
+            <li>
+              <strong>Production ownership.</strong> 28 architecture decision records and 8 written
+              postmortems (cross-tenant credential fallback, a bypassable rate limiter, untraced PAC
+              routes), each tracing root cause and blast radius to a fix and a generalizable lesson.
             </li>
             <li>
               <strong>Full-stack.</strong> Next.js 16 / React 19 streaming frontend, Node backend,
-              PostgreSQL/SQLite data layer, Zod schema validation at every boundary, CI/CD.
+              PostgreSQL/Redis data layer, Zod 4 validation at every boundary with compiled hot-path
+              schemas (3-7x validation throughput), GitHub Actions CI.
               <span class="stack-pill">Next.js</span><span class="stack-pill">React 19</span><span class="stack-pill">Zod</span>
             </li>
             <li>
               <strong>Applied mathematics in production.</strong> Directed supplier-network risk
               graph with BFS propagation and DFS cycle detection for tax-fraud carousel patterns;
               derived and published the decay bound, released as the open-source
-              <code>efos-risk-graph</code> npm package.
+              <code>efos-risk-graph</code> npm package (v0.3.0). The network is built from each
+              org's own invoices and shown as an interactive graph with what-if exclusion.
               <span class="stack-pill">Graph Algorithms</span><span class="stack-pill">npm</span>
             </li>
             <li>
@@ -1095,8 +1113,9 @@
               LLM application development, AI agents, multi-agent orchestration, agentic loops and
               self-correction, prompt engineering, system instructions, evals, hallucination control,
               human-in-the-loop (HITL), cost-aware model routing, retrieval and context injection
-              over MCP resources, fuzzy/lexical matching, Claude API, tool use / function calling,
-              MCP (full primitive set: tools, resources, prompts, elicitation, MCP UI apps)
+              over MCP resources, fuzzy/lexical and hybrid retrieval design, Claude API, tool use /
+              function calling, MCP (tools, resources, prompts, multi round-trip confirmation, MCP
+              Apps), CI-gated eval harnesses
             </dd>
           </div>
           <div class="skill-row">
@@ -1104,7 +1123,7 @@
             <dd>
               Python, TypeScript, Node.js, SQL, REST APIs, object-oriented design (abstract base
               classes, interface-based DI, strategy pattern), multi-service architecture, streaming /
-              server-sent events (SSE), Streamable HTTP
+              server-sent events (SSE), Streamable HTTP (stateless MCP 2026-07-28)
             </dd>
           </div>
           <div class="skill-row">
@@ -1121,9 +1140,16 @@
           <div class="skill-row">
             <dt>DevOps &amp; Practices</dt>
             <dd>
-              Docker, CI/CD, Git, Gitea, Coolify, Railway, automated testing (Vitest), schema
-              validation (Zod), observability (Langfuse), security, permissions, auditability,
-              technical documentation
+              Docker, CI/CD (GitHub Actions), Git, Railway, Vercel, automated testing (Vitest,
+              Playwright), schema validation (Zod), observability (Langfuse, Sentry), ADRs and
+              postmortems, technical documentation
+            </dd>
+          </div>
+          <div class="skill-row">
+            <dt>Security</dt>
+            <dd>
+              Multi-tenant isolation (PostgreSQL RLS), HMAC request signing, TOTP MFA, rate
+              limiting, encrypted credential storage, audit logging, permissions
             </dd>
           </div>
           <div class="skill-row">
@@ -1146,9 +1172,9 @@
           <div class="project-card">
             <h4>SAT-MCP Server</h4>
             <p>
-              Production MCP server for Mexican fiscal compliance. 46 tools, 18 prompts, 54+
-              resources, full MCP primitive set plus in-chat mini-apps; SSE and streamable HTTP
-              transport. 6,638+ tests, 91%+ coverage.
+              Production MCP server for Mexican fiscal compliance. 46 tools, 18 prompts, 95
+              resources, 9 in-chat MCP Apps; stateless Streamable HTTP (MCP 2026-07-28) with
+              backward compatibility. 6,400+ tests, 97% line / 90% branch coverage.
             </p>
             <div class="proj-stack">
               <span class="proj-tag">TypeScript</span>
@@ -1161,9 +1187,10 @@
           <div class="project-card">
             <h4>DISAI-Conta</h4>
             <p>
-              AI-native fiscal compliance platform for accounting firms. Routing agent plus 10
-              domain agents, scoped allowlists, live context injection, full observability,
-              human-in-the-loop compliance dashboard.
+              AI-native fiscal compliance platform for accounting firms, in private beta. Routing
+              agent plus 10 domain agents, scoped allowlists, live context injection, CI-gated
+              routing evals, supplier-network risk graph, human-in-the-loop compliance dashboard.
+              2,500+ tests.
             </p>
             <div class="proj-stack">
               <span class="proj-tag">Next.js 16</span>
@@ -1186,6 +1213,32 @@
               <span class="proj-tag">npm</span>
               <span class="proj-tag">Graph Algorithms</span>
               <span class="proj-tag">Open Source</span>
+            </div>
+          </div>
+          <div class="project-card">
+            <h4>AI Reliability &amp; Evaluation Lab</h4>
+            <p>
+              Reproducible benchmark for bounded tool-using agents: direct Sonnet 5 vs routed
+              Haiku/Sonnet on fictional fiscal data. Hashed immutable datasets, versioned pricing,
+              hard spend ceilings in CI, and reports generated only from raw run logs.
+            </p>
+            <div class="proj-stack">
+              <span class="proj-tag">Evals</span>
+              <span class="proj-tag">Claude API</span>
+              <span class="proj-tag">TypeScript</span>
+              <span class="proj-tag">Open Source</span>
+            </div>
+          </div>
+          <div class="project-card">
+            <h4>Technical Writing</h4>
+            <p>
+              Engineering write-ups at <a href="https://tripl3.dev/writing" data-umami-event="cv-writing">tripl3.dev/writing</a>:
+              cost-aware model routing, MCP server throughput, supplier-network risk math, and
+              field notes from building AI-native fiscal compliance solo.
+            </p>
+            <div class="proj-stack">
+              <span class="proj-tag">Writing</span>
+              <span class="proj-tag">Architecture</span>
             </div>
           </div>
           <div class="project-card">
