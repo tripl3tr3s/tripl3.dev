@@ -15,7 +15,7 @@ export default function Footer() {
           </div>
 
           <div className="flex space-x-6">
-            <a href="mailto:hola@tripl3.dev" className="text-gray-500 hover:text-green-400 transition-colors text-sm" data-umami-event="footer-email">Email</a>
+            <a href="mailto:hola@tripl3.dev" className="text-gray-500 hover:text-green-400 transition-colors text-sm" data-evento="contacto-canal" data-evento-canal="email">Email</a>
           </div>
         </div>
       </div>

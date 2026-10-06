@@ -39,6 +39,7 @@ export default function RootLayout({
           defer
           src="https://cloud.umami.is/script.js"
           data-website-id="a2eb1721-bfa8-40ef-b6e4-0a4605124678"
+          data-domains="tripl3.dev"
         />
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={true} disableTransitionOnChange={false}>
           <I18nProvider>

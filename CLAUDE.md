@@ -45,13 +45,14 @@ Language state is held in `I18nContext` (localStorage-persisted) and toggled by 
 
 ### Analytics
 
-Umami is loaded via `<Script>` in `app/layout.tsx`. `components/analytics-tracker.tsx` attaches Intersection Observer and DOM event listeners after Umami initializes to track:
-- Section views and dwell time
-- Scroll depth milestones (25/50/75/100%)
-- Button/link clicks (respects `data-umami-event` attributes)
-- Form submissions and external links
+Umami is loaded via `<Script>` in `app/layout.tsx` (`data-domains="tripl3.dev"`, so localhost and previews are not recorded). Event names and properties are Spanish to match the dashboard.
 
-To track custom events, add `data-umami-event="event-name"` on any element.
+- `lib/analytics.ts` - typed event map (`EventoMap`), `track()` with an 800ms dedupe, and pure helpers (source, device, bot heuristic, campaign). Tested in `lib/analytics.test.ts`.
+- `components/analytics-tracker.tsx` - re-runs per route. Sends `pagina-cargada` + one `umami.identify` per page load, `caso-visto` (case `<article data-caso>` at the viewport center for 4s), and one `sesion-resumen` on tab hide / pagehide / route change (active seconds, scroll, `recorrido`, `seg_<section>` dwell, `sospecha_bot`). Nothing is sent per section or per scroll milestone.
+- Clicks: tag elements with `data-evento="<name>"` plus `data-evento-<prop>="<value>"`. Untagged links/buttons fall back to `clic` (`tipo`: nav/externo/descarga/boton) or `cv-abierto`. Use `data-sin-rastreo` on elements whose event is sent from component code (cert modal, contact submit).
+- Never use `data-umami-event` in React components: Umami's script auto-sends those clicks and the tracker would double count. It is only used in `public/cv/index.html`, which has no custom tracker.
+- Conversion events keep their own names (Umami funnels/goals match on names): `caso-visto`, `caso-enlace`, `cert-abierta`, `cert-verificada`, `cert-descargada`, `post-abierto`, `cv-abierto`, `contacto-iniciado`, `contacto-enviado` (`resultado`), `contacto-canal`.
+- `/cv` on GitHub Pages is the iframe wrapper (`app/cv/page.tsx`); `public/cv/index.html` loads Umami with `data-auto-pageview="false"` when embedded (one pageview per CV visit) and sends a `cv-lectura` reading summary.
 
 ### Key Components
 

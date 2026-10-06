@@ -42,10 +42,10 @@ export default function Header() {
         <div className="hidden items-center gap-7 md:flex">
           <nav aria-label="Primary navigation" className="flex items-center gap-6">
             {navItems.map((item) => (
-              <Link key={item.name} href={item.href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" data-umami-event={`nav-${item.name.toLowerCase()}`}>{item.name}</Link>
+              <Link key={item.name} href={item.href} className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" data-evento="clic" data-evento-id={`nav-${item.name.toLowerCase()}`} data-evento-tipo="nav">{item.name}</Link>
             ))}
           </nav>
-          <a href="#contact" className="rounded-lg border border-primary/40 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10" data-umami-event="nav-contact">Contact</a>
+          <a href="#contact" className="rounded-lg border border-primary/40 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10" data-evento="clic" data-evento-id="nav-contact" data-evento-tipo="nav">Contact</a>
           <ThemeToggle />
         </div>
 

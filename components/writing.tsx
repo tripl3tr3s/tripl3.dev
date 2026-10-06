@@ -211,7 +211,9 @@ export default function Writing() {
                     <Link
                       href={post.link}
                       className="h-full flex flex-col bg-card/30 rounded-2xl border border-border hover:border-green-500/30 hover:bg-green-500/5 hover:-translate-y-1.5 active:scale-[0.98] active:translate-y-0 transition-all duration-300 ease-out group p-6 relative overflow-hidden"
-                      data-umami-event={`writing-post-${index}`}
+                      data-evento="post-abierto"
+                      data-evento-slug={post.link.split("/").filter(Boolean).pop()}
+                      data-evento-tipo="interno"
                       draggable={false}
                     >
                       {cardContent}
@@ -224,7 +226,9 @@ export default function Writing() {
                       className="h-full flex flex-col bg-card/30 rounded-2xl border border-border hover:border-green-500/30 hover:bg-green-500/5 transition-colors group p-6 relative overflow-hidden"
                       whileHover={{ y: -6, transition: { type: "spring", stiffness: 400, damping: 20 } }}
                       whileTap={{ scale: 0.98, y: 0 }}
-                      data-umami-event={`writing-post-${index}`}
+                      data-evento="post-abierto"
+                      data-evento-slug={post.link.split("/").filter(Boolean).pop()}
+                      data-evento-tipo="externo"
                       draggable={false}
                     >
                       {cardContent}

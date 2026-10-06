@@ -705,7 +705,45 @@
     </style>
     <link rel="icon" href="/333_faviccon_for_light_themes.png" media="(prefers-color-scheme: light)" />
     <link rel="icon" href="/333_faviccon_for_dark_themes.png" media="(prefers-color-scheme: dark)" />
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="a2eb1721-bfa8-40ef-b6e4-0a4605124678"></script>
+    <script>
+      // Umami loader. Embedded in /cv the parent page already records the pageview (with UTM),
+      // so the iframe keeps click events but skips its own pageview. Opened directly it tracks normally.
+      (function () {
+        var s = document.createElement("script");
+        s.defer = true;
+        s.src = "https://cloud.umami.is/script.js";
+        s.setAttribute("data-website-id", "a2eb1721-bfa8-40ef-b6e4-0a4605124678");
+        s.setAttribute("data-domains", "tripl3.dev");
+        var embebido = false;
+        try { embebido = window.self !== window.top; } catch (e) { embebido = true; }
+        if (embebido) s.setAttribute("data-auto-pageview", "false");
+        document.head.appendChild(s);
+
+        // cv-lectura: reading summary, re-sent only after new activity
+        var inicio = Date.now(), scrollMax = 0, clics = 0, envio = 0, nuevo = true;
+        function medir() {
+          var alto = document.documentElement.scrollHeight;
+          if (alto > 0) scrollMax = Math.max(scrollMax, Math.min(100, Math.round((window.scrollY + window.innerHeight) / alto * 100)));
+          nuevo = true;
+        }
+        window.addEventListener("scroll", medir, { passive: true });
+        document.addEventListener("click", function () { clics += 1; nuevo = true; }, true);
+        function enviar() {
+          if (!window.umami || !nuevo) return;
+          nuevo = false;
+          envio += 1;
+          window.umami.track("cv-lectura", {
+            segundos: Math.round((Date.now() - inicio) / 1000),
+            scroll_max: scrollMax,
+            clics: clics,
+            embebido: embebido,
+            envio: envio
+          });
+        }
+        document.addEventListener("visibilitychange", function () { if (document.visibilityState === "hidden") enviar(); });
+        window.addEventListener("pagehide", enviar);
+      })();
+    </script>
   </head>
   <body>
     <!-- ============ SHEET 1: identity, summary, DISAI ============ -->

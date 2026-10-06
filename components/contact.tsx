@@ -1,7 +1,8 @@
 "use client"
 
 import { ArrowUpRight, Github, Linkedin, Mail } from "lucide-react"
-import { useState } from "react"
+import { useRef, useState } from "react"
+import { track } from "@/lib/analytics"
 import { contactFormSchema, web3FormsResponseSchema, type ContactFormValues } from "@/lib/contact-schema"
 
 type FormStatus = "idle" | "sending" | "success" | "error"
@@ -10,6 +11,13 @@ type FieldErrors = Partial<Record<keyof ContactFormValues, string>>
 export default function Contact() {
   const [status, setStatus] = useState<FormStatus>("idle")
   const [errors, setErrors] = useState<FieldErrors>({})
+  const iniciado = useRef(false)
+
+  const handleFocus = () => {
+    if (iniciado.current) return
+    iniciado.current = true
+    track("contacto-iniciado", {})
+  }
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -29,6 +37,7 @@ export default function Contact() {
         message: fieldErrors.message?.[0],
       })
       setStatus("error")
+      track("contacto-enviado", { resultado: "error-validacion" })
       return
     }
 
@@ -52,8 +61,10 @@ export default function Contact() {
       if (!response.ok || !result.success || !result.data.success) throw new Error("Submission failed")
       form.reset()
       setStatus("success")
+      track("contacto-enviado", { resultado: "exito" })
     } catch {
       setStatus("error")
+      track("contacto-enviado", { resultado: "error-red" })
     }
   }
 
@@ -66,13 +77,13 @@ export default function Contact() {
           <p className="mt-5 max-w-lg text-lg leading-8 text-muted-foreground">I am open to applied AI, AI platform, and agent systems roles. I also work with selected teams that need production MCP or evaluation infrastructure.</p>
 
           <div className="mt-8 grid gap-3">
-            <a href="mailto:hola@tripl3.dev?subject=AI%20engineering%20opportunity" className="inline-flex items-center gap-3 rounded-xl border border-border bg-card/50 p-4 font-semibold transition-colors hover:border-primary/40"><Mail className="h-5 w-5 text-primary" aria-hidden="true" />hola@tripl3.dev</a>
-            <a href="https://github.com/tripl3tr3s" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 rounded-xl border border-border bg-card/50 p-4 font-semibold transition-colors hover:border-primary/40"><Github className="h-5 w-5 text-primary" aria-hidden="true" />GitHub<ArrowUpRight className="ml-auto h-4 w-4" aria-hidden="true" /></a>
-            <a href="https://www.linkedin.com/in/tripl3tr3s" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 rounded-xl border border-border bg-card/50 p-4 font-semibold transition-colors hover:border-primary/40"><Linkedin className="h-5 w-5 text-primary" aria-hidden="true" />LinkedIn<ArrowUpRight className="ml-auto h-4 w-4" aria-hidden="true" /></a>
+            <a href="mailto:hola@tripl3.dev?subject=AI%20engineering%20opportunity" data-evento="contacto-canal" data-evento-canal="email" className="inline-flex items-center gap-3 rounded-xl border border-border bg-card/50 p-4 font-semibold transition-colors hover:border-primary/40"><Mail className="h-5 w-5 text-primary" aria-hidden="true" />hola@tripl3.dev</a>
+            <a href="https://github.com/tripl3tr3s" target="_blank" rel="noreferrer" data-evento="contacto-canal" data-evento-canal="github" className="inline-flex items-center gap-3 rounded-xl border border-border bg-card/50 p-4 font-semibold transition-colors hover:border-primary/40"><Github className="h-5 w-5 text-primary" aria-hidden="true" />GitHub<ArrowUpRight className="ml-auto h-4 w-4" aria-hidden="true" /></a>
+            <a href="https://www.linkedin.com/in/tripl3tr3s" target="_blank" rel="noreferrer" data-evento="contacto-canal" data-evento-canal="linkedin" className="inline-flex items-center gap-3 rounded-xl border border-border bg-card/50 p-4 font-semibold transition-colors hover:border-primary/40"><Linkedin className="h-5 w-5 text-primary" aria-hidden="true" />LinkedIn<ArrowUpRight className="ml-auto h-4 w-4" aria-hidden="true" /></a>
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} noValidate className="rounded-3xl border border-border bg-card/50 p-6 shadow-2xl sm:p-8">
+        <form onSubmit={handleSubmit} onFocus={handleFocus} noValidate className="rounded-3xl border border-border bg-card/50 p-6 shadow-2xl sm:p-8">
           <input type="checkbox" name="botcheck" className="hidden" tabIndex={-1} autoComplete="off" />
           <div className="grid gap-6 sm:grid-cols-2">
             <div>
@@ -91,7 +102,7 @@ export default function Contact() {
             <textarea id="message" name="message" rows={7} aria-invalid={Boolean(errors.message)} aria-describedby={errors.message ? "message-error" : undefined} className="mt-2 w-full resize-y rounded-xl border border-border bg-background/70 px-4 py-3 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20" />
             {errors.message && <p id="message-error" className="mt-2 text-sm text-red-500">{errors.message}</p>}
           </div>
-          <button type="submit" disabled={status === "sending"} className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-6 font-black text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60">{status === "sending" ? "Sending..." : "Send message"}</button>
+          <button type="submit" data-sin-rastreo disabled={status === "sending"} className="mt-6 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-primary px-6 font-black text-primary-foreground transition-transform hover:-translate-y-0.5 disabled:cursor-wait disabled:opacity-60">{status === "sending" ? "Sending..." : "Send message"}</button>
           <div className="mt-4 min-h-6 text-sm" role="status" aria-live="polite">
             {status === "success" && <p className="text-emerald-700 dark:text-emerald-400">Message sent. I will reply shortly.</p>}
             {status === "error" && Object.keys(errors).length === 0 && <p className="text-red-500">Something went wrong. Email hola@tripl3.dev directly.</p>}

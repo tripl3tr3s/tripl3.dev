@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type MouseEvent } from "react"
 import { motion, useReducedMotion } from "framer-motion"
 import Image from "next/image"
 import { ArrowUpRight, CheckCircle2, Clock3, LockKeyhole, Pause, Play } from "lucide-react"
+import { hostDe } from "@/lib/analytics"
 import {
   caseStudies,
   evidenceMetrics,
@@ -94,7 +95,7 @@ function EvidenceCard({ metric, index }: { readonly metric: ProjectEvidence; rea
           <p className="font-mono text-2xl font-black tracking-tight">{metric.value}</p>
           <p className="mt-1 text-sm font-semibold">{metric.label}</p>
           {metric.status === "verified" ? (
-            <a href={metric.href} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" data-umami-event="evidence-open-source">
+            <a href={metric.href} target="_blank" rel="noreferrer" className="mt-3 inline-flex text-xs font-semibold text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" data-evento="clic" data-evento-id="evidence-source" data-evento-tipo="externo" data-evento-destino={hostDe(metric.href)}>
               Verify on GitHub
             </a>
           ) : (
@@ -202,7 +203,7 @@ export default function Research() {
 
         <div className="grid gap-7">
           {caseStudies.map((project, index) => (
-            <article key={project.id} id={project.id === "ai-reliability-lab" ? "lab" : undefined} className="group grid overflow-hidden rounded-3xl border border-border bg-background/65 lg:grid-cols-[0.72fr_1.28fr]">
+            <article key={project.id} data-caso={project.id} id={project.id === "ai-reliability-lab" ? "lab" : undefined} className="group grid overflow-hidden rounded-3xl border border-border bg-background/65 lg:grid-cols-[0.72fr_1.28fr]">
               <div className="relative min-h-64 overflow-hidden border-b border-border bg-black lg:min-h-full lg:border-b-0 lg:border-r">
                 {project.video ? (
                   <CaseStudyVideo src={project.video.src} poster={project.video.poster} title={project.title} />
@@ -241,7 +242,7 @@ export default function Research() {
                 <p className="mt-5 text-sm text-muted-foreground"><span className="font-semibold text-foreground">Ownership:</span> {project.ownership}</p>
                 <div className="mt-6 flex flex-wrap gap-3">
                   {project.links.map((link) => (
-                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10" data-umami-event={`case-${project.id}`}>
+                    <a key={link.href} href={link.href} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 rounded-lg border border-primary/30 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-primary/10" data-evento="caso-enlace" data-evento-caso={project.id} data-evento-destino={hostDe(link.href)}>
                       {link.label}<ArrowUpRight className="h-4 w-4" aria-hidden="true" />
                     </a>
                   ))}
@@ -264,7 +265,7 @@ export default function Research() {
               rel="noreferrer"
               aria-label={`Open ${project.title} on ${project.kind === "package" ? "npm" : "GitHub"}`}
               className="group rounded-2xl border border-border bg-background/65 p-6 transition-colors hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-              data-umami-event={`open-source-${project.id}`}
+              data-evento="clic" data-evento-id={`open-source-${project.id}`} data-evento-tipo="externo" data-evento-destino={hostDe(project.links[0].href)}
             >
               <div className="flex items-start justify-between gap-4">
                 <div>

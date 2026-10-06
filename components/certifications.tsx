@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import { useState } from "react"
 import { ExternalLink, Download, X, Brain, Code2, Database, Workflow } from "lucide-react"
 import { useTranslation } from "@/lib/use-translation"
+import { track } from "@/lib/analytics"
 
 // Certificate data structure
 interface Certificate {
@@ -198,7 +199,6 @@ function CertificateCard({ cert, index, onClick, t }: CertificateCardProps) {
         <div className="flex items-center gap-2 text-sm">
           <motion.span
             className="inline-flex items-center text-green-700 dark:text-green-400 group-hover:text-green-600 dark:group-hover:text-green-300 font-medium"
-            data-umami-event={`cert-ver-${cert.id}`}
           >
             {t('certifications.viewCert')} <ExternalLink className="ml-1 w-3 h-3" />
           </motion.span>
@@ -282,7 +282,7 @@ function FeaturedCard({ cert, onSelect, t }: {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={e => { e.stopPropagation(); onSelect(cert) }}
-              data-umami-event={`cert-destacada-${cert.id}`}
+              data-sin-rastreo
             >
               {t('certifications.viewBadge')}
             </motion.button>
@@ -325,6 +325,8 @@ function CertificateModal({ cert, onClose }: { cert: Certificate; onClose: () =>
                 rel="noopener noreferrer"
                 className="p-2 hover:bg-muted rounded-lg transition-colors"
                 title="Verify Certificate"
+                data-evento="cert-verificada"
+                data-evento-cert={cert.id}
               >
                 <ExternalLink className="w-5 h-5" />
               </a>
@@ -334,6 +336,8 @@ function CertificateModal({ cert, onClose }: { cert: Certificate; onClose: () =>
               download
               className="p-2 hover:bg-muted rounded-lg transition-colors"
               title="Download"
+              data-evento="cert-descargada"
+              data-evento-cert={cert.id}
             >
               <Download className="w-5 h-5" />
             </a>
@@ -372,6 +376,11 @@ export default function Certifications() {
   const { t } = useTranslation()
   const [selectedCert, setSelectedCert] = useState<Certificate | null>(null)
 
+  const abrirCert = (cert: Certificate, origen: "tarjeta" | "destacada") => {
+    track("cert-abierta", { cert: cert.id, origen })
+    setSelectedCert(cert)
+  }
+
   const featuredCert = certificates.find(c => c.featured) ?? certificates[0]
   const otherCerts = certificates.filter(c => c.id !== featuredCert.id)
 
@@ -396,7 +405,7 @@ export default function Certifications() {
 
           <div className="max-w-5xl mx-auto space-y-8">
             {/* Featured certification */}
-            <FeaturedCard cert={featuredCert} onSelect={setSelectedCert} t={t} />
+            <FeaturedCard cert={featuredCert} onSelect={(cert) => abrirCert(cert, "destacada")} t={t} />
 
             {/* Other certifications */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -405,7 +414,7 @@ export default function Certifications() {
                   key={cert.id}
                   cert={cert}
                   index={idx}
-                  onClick={() => setSelectedCert(cert)}
+                  onClick={() => abrirCert(cert, "tarjeta")}
                   t={t}
                 />
               ))}
@@ -418,7 +427,7 @@ export default function Certifications() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center text-green-700 dark:text-green-400 hover:text-green-600 dark:hover:text-green-300 font-medium transition-colors"
-                data-umami-event="cert-linkedin-history"
+                data-evento="clic" data-evento-id="cert-linkedin-history" data-evento-tipo="externo" data-evento-destino="www.linkedin.com"
               >
                 {t('certifications.fullHistory')} <span className="ml-1">→</span>
               </a>
